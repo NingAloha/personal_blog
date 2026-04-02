@@ -1,7 +1,7 @@
 ---
 title: 个人主页
 summary: 你现在看到的这个网站。Wikipedia 风格的个人主页，包含项目展示与文学随笔。
-tech: ["Vue 3", "Vite", "Vue Router", "Node.js"]
+tech: ["Vue 3", "Vite", "Vue Router", "Node.js", "Nginx", "PM2"]
 startDate: "2026-04"
 status: 进行中
 link: https://github.com/NingAloha/personal_blog
@@ -19,6 +19,10 @@ featured: true
 - **Vue Router** — 客户端路由
 - **Node.js + Express** — 后端 API，提供 Markdown 内容
 - **markdown-it** — Markdown 渲染
+- **Nginx** — 高性能反向代理，处理 HTTPS 卸载与 HSTS 安全策略
+- **PM2** — Node.js 生产环境进程守护，确保后端服务高可用
+- **Certbot (SSL)** — 驱动 A+ 级自动化证书管理与安全加固
+- **gray-matter** — 解析 Markdown 头部 YAML 元数据（Front-matter
 
 ## 设计理念
 
