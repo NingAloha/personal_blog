@@ -2,8 +2,8 @@
 title: 简单的事
 summary: 做一件事的最好方式，往往是把它做得比你想象的更简单。
 tags: ["随想", "设计"]
-date: "2026-04-01"
-featured: false
+date: "2026-04-02"
+featured: true
 ---
 
 ## 复杂是怎么来的

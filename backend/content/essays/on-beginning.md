@@ -2,8 +2,8 @@
 title: 开始
 summary: 万事开头难，但不开始就永远只是想象。关于动笔这件事。
 tags: ["随想"]
-date: "2026-04-02"
-featured: true
+date: "2026-04-01"
+featured: false
 ---
 
 ## 一
