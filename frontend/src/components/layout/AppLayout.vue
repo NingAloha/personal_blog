@@ -105,7 +105,7 @@ const today = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '
 }
 
 /* ── 移动端响应式 ── */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .wiki-header-inner {
     padding: 0 1rem;
     gap: 0.75rem;

@@ -144,7 +144,6 @@ onMounted(async () => {
   cursor: pointer;
   transition: background 0.15s;
   background: #fff;
-  overflow: hidden;
   /* 让卡片不被右侧浮动的 infobox 遮住 */
   margin-right: calc(240px + 2em + 2px);
 }
@@ -199,7 +198,7 @@ onMounted(async () => {
 }
 
 /* ── 移动端响应式 ── */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .infobox {
     float: none;
     width: 100%;
