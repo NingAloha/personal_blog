@@ -175,6 +175,65 @@ pm2 restart personal_blog_api
 
 ---
 
+## 更新上线流程
+
+### 情况一：只新增/修改了 Markdown 文章
+
+后端是实时读取文件的，直接在服务器上操作即可，**无需重启、无需重新构建**：
+
+```bash
+# 在服务器上直接拉取最新内容
+cd ~/personal_blog
+git pull
+```
+
+或者直接在服务器上新建/编辑 `.md` 文件，刷新页面即可看到变化。
+
+---
+
+### 情况二：修改了前端代码（Vue 组件、样式等）
+
+前端代码变更需要重新构建，然后 Nginx 会自动托管新的 `dist/`：
+
+```bash
+# 1. 本地提交并推送
+git add -A && git commit -m "描述你的改动" && git push
+
+# 2. 在服务器上拉取并重新构建
+cd ~/personal_blog
+git pull
+cd frontend && npm run build && cd ..
+```
+
+构建完成后，刷新浏览器即可看到更新（可能需要强刷 Ctrl+Shift+R 清除缓存）。
+
+---
+
+### 情况三：修改了后端代码（server.js）
+
+```bash
+# 1. 本地提交并推送
+git add -A && git commit -m "描述你的改动" && git push
+
+# 2. 在服务器上拉取并重启后端
+cd ~/personal_blog
+git pull
+pm2 restart personal_blog_api
+```
+
+---
+
+### 一键全量更新（前端 + 后端都有改动）
+
+```bash
+cd ~/personal_blog
+git pull
+cd frontend && npm run build && cd ..
+pm2 restart personal_blog_api
+```
+
+---
+
 ## 头像
 
 将头像图片命名为 `avatar.jpg` 放入 `frontend/public/` 目录，重新构建前端即可：
