@@ -197,5 +197,17 @@ onMounted(async () => {
   margin-top: 0.5rem;
   font-size: 0.875rem;
 }
+
+/* ── 移动端响应式 ── */
+@media (max-width: 600px) {
+  .infobox {
+    float: none;
+    width: 100%;
+    margin: 0 0 1.5em 0;
+  }
+  .featured-card {
+    margin-right: 0;
+  }
+}
 </style>
 

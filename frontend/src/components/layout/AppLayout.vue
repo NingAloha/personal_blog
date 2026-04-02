@@ -103,4 +103,27 @@ const today = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '
   margin: 0 auto;
   padding: 0.75rem 1.5rem;
 }
+
+/* ── 移动端响应式 ── */
+@media (max-width: 600px) {
+  .wiki-header-inner {
+    padding: 0 1rem;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 48px;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+  }
+  .wiki-logo {
+    font-size: 1rem;
+  }
+  .wiki-nav {
+    gap: 0.75rem;
+    font-size: 0.82rem;
+  }
+  .wiki-main {
+    padding: 1.25rem 1rem;
+  }
+}
 </style>
