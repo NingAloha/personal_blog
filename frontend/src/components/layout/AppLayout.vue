@@ -7,6 +7,7 @@
           <router-link to="/">主页</router-link>
           <router-link to="/projects">项目</router-link>
           <router-link to="/essays">文学随笔</router-link>
+          <router-link to="/ai">AI 助手</router-link>
         </nav>
       </div>
     </header>
