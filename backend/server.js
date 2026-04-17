@@ -120,11 +120,22 @@ app.post('/api/ai/chat', async (req, res) => {
 
     const reader = ragRes.body
     const decoder = new TextDecoder()
+    const isSSE = (ragRes.headers.get('content-type') || '').includes('text/event-stream')
 
     for await (const chunk of reader) {
       const text = decoder.decode(chunk)
-      // 直接透传 SSE 数据
-      res.write(text)
+      if (isSSE) {
+        // RAG 返回的已经是 SSE 格式，直接透传
+        res.write(text)
+      } else {
+        // RAG 返回纯文本，包装成前端期望的 SSE 格式
+        const data = JSON.stringify({ token: text }, null, 0)
+        res.write(`data: ${data}\n\n`)
+      }
+    }
+
+    if (!isSSE) {
+      res.write('data: [DONE]\n\n')
     }
   } catch (e) {
     res.write(`data: ${JSON.stringify({ error: 'AI 服务暂时不可用' })}\n\n`)
