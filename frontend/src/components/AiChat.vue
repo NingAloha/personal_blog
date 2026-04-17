@@ -18,6 +18,11 @@
       >
         <div class="ai-chat__bubble">
           <span v-if="msg.role === 'assistant' && msg.loading" class="ai-chat__cursor">▍</span>
+          <div
+            v-else-if="msg.role === 'assistant'"
+            class="ai-chat__md"
+            v-html="renderMd(msg.content)"
+          ></div>
           <span v-else>{{ msg.content }}</span>
         </div>
       </div>
@@ -44,8 +49,17 @@
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
+import { renderMarkdown } from '../utils/markdown'
 
 const API_BASE = import.meta.env.VITE_API_BASE || ''
+
+function renderMd(content) {
+  try {
+    return renderMarkdown(content)
+  } catch {
+    return content
+  }
+}
 
 const messages = ref([])
 const inputText = ref('')
@@ -195,8 +209,52 @@ onMounted(() => {
   padding: 8px 12px;
   border-radius: 12px;
   line-height: 1.6;
-  white-space: pre-wrap;
   word-break: break-word;
+}
+
+.user .ai-chat__bubble {
+  white-space: pre-wrap;
+}
+
+.ai-chat__md :deep(p) { margin: 0 0 8px; }
+.ai-chat__md :deep(p:last-child) { margin-bottom: 0; }
+.ai-chat__md :deep(pre) {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 8px 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 8px 0;
+  font-size: 13px;
+}
+.ai-chat__md :deep(code) {
+  background: #e5e7eb;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 13px;
+}
+.ai-chat__md :deep(pre code) {
+  background: none;
+  padding: 0;
+}
+.ai-chat__md :deep(ul), .ai-chat__md :deep(ol) {
+  margin: 4px 0;
+  padding-left: 20px;
+}
+.ai-chat__md :deep(blockquote) {
+  border-left: 3px solid #d1d5db;
+  margin: 8px 0;
+  padding-left: 12px;
+  color: #6b7280;
+}
+.ai-chat__md :deep(a) {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+.ai-chat__md :deep(h1), .ai-chat__md :deep(h2), .ai-chat__md :deep(h3) {
+  margin: 8px 0 4px;
+  font-size: 1em;
+  font-weight: 600;
 }
 
 .user .ai-chat__bubble {
