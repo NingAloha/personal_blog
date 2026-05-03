@@ -76,73 +76,24 @@ app.get('/api/essays/:slug', (req, res) => {
   }
 })
 
-const PORT = process.env.PORT || 3000
-
-// ── AI 知识库接口 ──
-const RAG_URL = process.env.RAG_URL || 'http://127.0.0.1:18765'
-
-// 检查 AI 服务是否在线
-app.get('/api/ai/status', async (_req, res) => {
+// ── 技术博客 ──
+app.get('/api/tech-blogs', (_req, res) => {
   try {
-    const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), 3000)
-    await fetch(`${RAG_URL}/query`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question: 'ping' }),
-      signal: controller.signal
-    })
-    clearTimeout(timer)
-    res.json({ online: true })
-  } catch {
-    res.json({ online: false })
-  }
-})
-
-// 流式问答接口（SSE）
-app.post('/api/ai/chat', async (req, res) => {
-  const { question } = req.body
-  if (!question || question.trim().length === 0) {
-    return res.status(400).json({ error: '问题不能为空' })
-  }
-
-  res.setHeader('Content-Type', 'text/event-stream')
-  res.setHeader('Cache-Control', 'no-cache')
-  res.setHeader('Connection', 'keep-alive')
-  res.setHeader('Access-Control-Allow-Origin', '*')
-
-  try {
-    const ragRes = await fetch(`${RAG_URL}/query`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question })
-    })
-
-    const reader = ragRes.body
-    const decoder = new TextDecoder()
-    const isSSE = (ragRes.headers.get('content-type') || '').includes('text/event-stream')
-
-    for await (const chunk of reader) {
-      const text = decoder.decode(chunk)
-      if (isSSE) {
-        // RAG 返回的已经是 SSE 格式，直接透传
-        res.write(text)
-      } else {
-        // RAG 返回纯文本，包装成前端期望的 SSE 格式
-        const data = JSON.stringify({ token: text }, null, 0)
-        res.write(`data: ${data}\n\n`)
-      }
-    }
-
-    if (!isSSE) {
-      res.write('data: [DONE]\n\n')
-    }
+    res.json(readAllItems('tech-blogs'))
   } catch (e) {
-    res.write(`data: ${JSON.stringify({ error: 'AI 服务暂时不可用' })}\n\n`)
-  } finally {
-    res.end()
+    res.status(500).json({ error: e.message })
   }
 })
+
+app.get('/api/tech-blogs/:slug', (req, res) => {
+  try {
+    res.json(readItem('tech-blogs', req.params.slug))
+  } catch {
+    res.status(404).json({ error: 'Not found' })
+  }
+})
+
+const PORT = process.env.PORT || 3000
 
 app.listen(PORT, () => {
   console.log(`Backend running at http://localhost:${PORT}`)

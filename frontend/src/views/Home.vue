@@ -17,6 +17,7 @@
           <tr><th>我来自于</th><td>中国·汕头</td></tr>
           <tr><th>项目做了</th><td>{{ projectCount }}个</td></tr>
           <tr><th>随笔写了</th><td>{{ essayCount }}篇</td></tr>
+          <tr><th>技术博客</th><td>{{ techBlogCount }}篇</td></tr>
         </tbody>
       </table>
       <div class="infobox-links">
@@ -74,6 +75,24 @@
       <router-link to="/essays">查看所有随笔</router-link>
     </p>
 
+    <!-- ── 技术博客 ── -->
+    <h2 class="wiki-section">技术博客</h2>
+    <template v-if="featuredTechBlog">
+      <div class="featured-card" @click="$router.push(`/tech-blogs/${featuredTechBlog.slug}`)">
+        <div class="featured-card-header">
+          <span class="featured-card-title">{{ featuredTechBlog.title }}</span>
+          <span class="featured-card-date">{{ featuredTechBlog.date }}</span>
+        </div>
+        <p class="featured-card-summary">{{ featuredTechBlog.summary }}</p>
+        <router-link :to="`/tech-blogs/${featuredTechBlog.slug}`" class="featured-more">
+          阅读更多 →
+        </router-link>
+      </div>
+    </template>
+    <p class="section-seeall">
+      <router-link to="/tech-blogs">查看所有技术博客</router-link>
+    </p>
+
   </article>
 </template>
 
@@ -83,15 +102,23 @@ import { api } from '../utils/api'
 
 const featuredProject = ref(null)
 const featuredEssay = ref(null)
+const featuredTechBlog = ref(null)
 const projectCount = ref(0)
 const essayCount = ref(0)
+const techBlogCount = ref(0)
 
 onMounted(async () => {
-  const [projects, essays] = await Promise.all([api.getProjects(), api.getEssays()])
+  const [projects, essays, techBlogs] = await Promise.all([
+    api.getProjects(),
+    api.getEssays(),
+    api.getTechBlogs()
+  ])
   projectCount.value = projects.length
   essayCount.value = essays.length
+  techBlogCount.value = techBlogs.length
   featuredProject.value = projects.find((p) => p.featured) || projects[0] || null
   featuredEssay.value = essays.find((e) => e.featured) || essays[0] || null
+  featuredTechBlog.value = techBlogs.find((p) => p.featured) || techBlogs[0] || null
 })
 </script>
 
@@ -209,4 +236,3 @@ onMounted(async () => {
   }
 }
 </style>
-

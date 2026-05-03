@@ -18,7 +18,8 @@ personal_blog/
 │   ├── server.js
 │   └── content/
 │       ├── projects/  # 项目 Markdown 文件
-│       └── essays/    # 随笔 Markdown 文件
+│       ├── essays/    # 随笔 Markdown 文件
+│       └── tech-blogs/# 技术博客 Markdown 文件
 └── README.md
 ```
 
@@ -163,6 +164,24 @@ featured: false
 
 > 文件名即 URL slug，例如 `my-essay.md` 对应 `/essays/my-essay`。  
 > `featured: true` 的条目会显示在主页精选区域（每类取第一个）。
+
+### 新增技术博客
+
+在 `backend/content/tech-blogs/` 下新建一个 `.md` 文件，例如 `my-tech-post.md`：
+
+```markdown
+---
+title: 文章标题
+summary: 一句话摘要
+tags: [Vue, Node.js]
+date: "2026-05-03"
+featured: false
+---
+
+正文 Markdown 内容...
+```
+
+> 文件名即 URL slug，例如 `my-tech-post.md` 对应 `/tech-blogs/my-tech-post`。
 
 ### 更新后重启
 

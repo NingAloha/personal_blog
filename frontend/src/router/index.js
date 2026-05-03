@@ -10,7 +10,8 @@ const routes = [
       { path: 'projects/:slug', name: 'ProjectDetail', component: () => import('../views/ProjectDetail.vue') },
       { path: 'essays', name: 'EssayList', component: () => import('../views/EssayList.vue') },
       { path: 'essays/:slug', name: 'EssayDetail', component: () => import('../views/EssayDetail.vue') },
-      { path: 'ai', name: 'AiView', component: () => import('../views/AiView.vue') }
+      { path: 'tech-blogs', name: 'TechBlogList', component: () => import('../views/TechBlogList.vue') },
+      { path: 'tech-blogs/:slug', name: 'TechBlogDetail', component: () => import('../views/TechBlogDetail.vue') }
     ],
   },
   { path: '/:pathMatch(.*)*', component: () => import('../views/NotFound.vue') },

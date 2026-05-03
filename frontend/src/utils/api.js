@@ -11,4 +11,6 @@ export const api = {
   getProject: (slug) => get(`/projects/${slug}`),
   getEssays: () => get('/essays'),
   getEssay: (slug) => get(`/essays/${slug}`),
+  getTechBlogs: () => get('/tech-blogs'),
+  getTechBlog: (slug) => get(`/tech-blogs/${slug}`),
 }
