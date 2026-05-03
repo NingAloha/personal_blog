@@ -51,22 +51,22 @@ watch(() => route.params.slug, (slug) => slug && load(slug))
 <style scoped>
 .breadcrumb {
   font-size: 0.85rem;
-  color: #555;
+  color: var(--text-muted);
   margin-bottom: 0.5rem;
 }
-.breadcrumb a { color: #3366cc; text-decoration: none; }
+.breadcrumb a { color: var(--link); text-decoration: none; }
 .breadcrumb a:hover { text-decoration: underline; }
 
 .tag {
   display: inline-block;
-  background: #eaf3fb;
-  border: 1px solid #cee0f2;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
   border-radius: 2px;
   padding: 0.1rem 0.4rem;
   font-size: 0.75rem;
-  color: #3366cc;
+  color: var(--link);
   margin: 0.1rem 0.2rem 0.1rem 0;
 }
-.loading { color: #555; padding: 2rem 0; }
-.not-found { color: #555; padding: 2rem 0; }
+.loading { color: var(--text-muted); padding: 2rem 0; }
+.not-found { color: var(--text-muted); padding: 2rem 0; }
 </style>

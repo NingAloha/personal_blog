@@ -9,6 +9,9 @@
           <router-link to="/essays">文学随笔</router-link>
           <router-link to="/tech-blogs">技术博客</router-link>
         </nav>
+        <button class="theme-toggle" type="button" @click="toggleTheme">
+          {{ isDark ? '浅色' : '黑夜' }}
+        </button>
       </div>
     </header>
     <main class="wiki-main">
@@ -23,7 +26,31 @@
 </template>
 
 <script setup>
+import { onMounted, ref } from 'vue'
+
 const today = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })
+const isDark = ref(false)
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme
+  isDark.value = theme === 'dark'
+}
+
+function toggleTheme() {
+  const nextTheme = isDark.value ? 'light' : 'dark'
+  applyTheme(nextTheme)
+  localStorage.setItem('theme', nextTheme)
+}
+
+onMounted(() => {
+  const savedTheme = localStorage.getItem('theme')
+  if (savedTheme === 'dark' || savedTheme === 'light') {
+    applyTheme(savedTheme)
+    return
+  }
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  applyTheme(prefersDark ? 'dark' : 'light')
+})
 </script>
 
 <style scoped>
@@ -31,13 +58,13 @@ const today = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--bg);
 }
 
 /* ── Header ── */
 .wiki-header {
-  border-bottom: 1px solid #a2a9b1;
-  background: #fff;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -54,7 +81,7 @@ const today = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '
 .wiki-logo {
   font-family: 'Linux Libertine', Georgia, Times, serif;
   font-size: 1.25rem;
-  color: #202122;
+  color: var(--text);
   text-decoration: none;
   font-weight: bold;
   white-space: nowrap;
@@ -66,9 +93,10 @@ const today = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '
   display: flex;
   gap: 1.25rem;
   font-size: 0.875rem;
+  margin-right: auto;
 }
 .wiki-nav a {
-  color: #3366cc;
+  color: var(--link);
   text-decoration: none;
   padding: 0.2rem 0;
   border-bottom: 2px solid transparent;
@@ -77,9 +105,21 @@ const today = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '
   text-decoration: underline;
 }
 .wiki-nav a.router-link-exact-active {
-  color: #202122;
-  border-bottom-color: #202122;
+  color: var(--text);
+  border-bottom-color: var(--text);
   font-weight: 600;
+}
+.theme-toggle {
+  border: 1px solid var(--border);
+  background: var(--bg-muted);
+  color: var(--text-soft);
+  border-radius: 3px;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.theme-toggle:hover {
+  background: var(--border-soft);
 }
 
 /* ── Main ── */
@@ -93,10 +133,10 @@ const today = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '
 
 /* ── Footer ── */
 .wiki-footer {
-  border-top: 1px solid #a2a9b1;
-  background: #f8f9fa;
+  border-top: 1px solid var(--border);
+  background: var(--bg-muted);
   font-size: 0.8rem;
-  color: #555;
+  color: var(--text-muted);
   margin-top: auto;
 }
 .wiki-footer-inner {
@@ -122,6 +162,9 @@ const today = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '
   .wiki-nav {
     gap: 0.75rem;
     font-size: 0.82rem;
+  }
+  .theme-toggle {
+    margin-left: auto;
   }
   .wiki-main {
     padding: 1.25rem 1rem;

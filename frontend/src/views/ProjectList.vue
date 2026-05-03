@@ -45,7 +45,7 @@ onMounted(async () => {
 
 <style scoped>
 .page-lead {
-  color: #555;
+  color: var(--text-muted);
   margin-bottom: 1.5rem;
 }
 .wiki-list-table {
@@ -54,24 +54,24 @@ onMounted(async () => {
   font-size: 0.9rem;
 }
 .wiki-list-table th {
-  background: #eaecf0;
-  border: 1px solid #a2a9b1;
+  background: var(--border-soft);
+  border: 1px solid var(--border);
   padding: 0.45rem 0.75rem;
   text-align: left;
   font-weight: 600;
   white-space: nowrap;
 }
 .wiki-list-table td {
-  border: 1px solid #a2a9b1;
+  border: 1px solid var(--border);
   padding: 0.45rem 0.75rem;
   vertical-align: top;
 }
 .wiki-list-table tbody tr:hover td {
-  background: #f8f9fa;
+  background: var(--bg-muted);
 }
 .list-title-cell a {
   font-weight: 600;
-  color: #3366cc;
+  color: var(--link);
   text-decoration: none;
 }
 .list-title-cell a:hover {
@@ -79,19 +79,19 @@ onMounted(async () => {
 }
 .list-summary-cell {
   max-width: 320px;
-  color: #444;
+  color: var(--text-soft);
 }
 .list-date-cell {
   white-space: nowrap;
-  color: #777;
+  color: var(--text-faint);
 }
 .tech-tag {
   display: inline-block;
-  background: #eaecf0;
+  background: var(--border-soft);
   border-radius: 2px;
   padding: 0.1rem 0.45rem;
   font-size: 0.75rem;
-  color: #444;
+  color: var(--text-soft);
   margin: 0.1rem 0.2rem 0.1rem 0;
 }
 </style>

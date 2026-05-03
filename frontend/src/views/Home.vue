@@ -128,8 +128,8 @@ onMounted(async () => {
   float: right;
   clear: right;
   margin: 0 0 1.25em 2em;
-  border: 1px solid #a2a9b1;
-  background: #f8f9fa;
+  border: 1px solid var(--border);
+  background: var(--bg-muted);
   font-size: 0.875rem;
   width: 240px;
   border-collapse: collapse;
@@ -137,7 +137,7 @@ onMounted(async () => {
 .infobox-image img {
   width: 100%;
   display: block;
-  border-bottom: 1px solid #a2a9b1;
+  border-bottom: 1px solid var(--border);
 }
 .infobox-table {
   width: 100%;
@@ -147,17 +147,17 @@ onMounted(async () => {
 .infobox-table th,
 .infobox-table td {
   padding: 0.3rem 0.6rem;
-  border-top: 1px solid #eaecf0;
+  border-top: 1px solid var(--border-soft);
   vertical-align: top;
 }
 .infobox-table th {
-  color: #555;
+  color: var(--text-muted);
   font-weight: normal;
   white-space: nowrap;
   width: 60px;
 }
 .infobox-links {
-  border-top: 1px solid #a2a9b1;
+  border-top: 1px solid var(--border);
   padding: 0.4rem 0.6rem;
   display: flex;
   gap: 0.75rem;
@@ -165,17 +165,17 @@ onMounted(async () => {
 
 /* ── Featured card ── */
 .featured-card {
-  border: 1px solid #a2a9b1;
+  border: 1px solid var(--border);
   border-radius: 2px;
   padding: 0.9rem 1.1rem;
   cursor: pointer;
   transition: background 0.15s;
-  background: #fff;
+  background: var(--bg);
   /* 让卡片不被右侧浮动的 infobox 遮住 */
   margin-right: calc(240px + 2em + 2px);
 }
 .featured-card:hover {
-  background: #f8f9fa;
+  background: var(--bg-muted);
 }
 .featured-card-header {
   display: flex;
@@ -186,16 +186,16 @@ onMounted(async () => {
 .featured-card-title {
   font-size: 1.05rem;
   font-weight: 600;
-  color: #202122;
+  color: var(--text);
 }
 .featured-card-status,
 .featured-card-date {
   font-size: 0.8rem;
-  color: #777;
+  color: var(--text-faint);
 }
 .featured-card-summary {
   margin: 0 0 0.75rem;
-  color: #444;
+  color: var(--text-soft);
   line-height: 1.6;
 }
 .featured-card-tech {
@@ -205,15 +205,15 @@ onMounted(async () => {
   margin-bottom: 0.75rem;
 }
 .tech-tag {
-  background: #eaecf0;
+  background: var(--border-soft);
   border-radius: 2px;
   padding: 0.15rem 0.5rem;
   font-size: 0.78rem;
-  color: #444;
+  color: var(--text-soft);
 }
 .featured-more {
   font-size: 0.875rem;
-  color: #3366cc;
+  color: var(--link);
   text-decoration: none;
 }
 .featured-more:hover {

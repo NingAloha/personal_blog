@@ -1,7 +1,7 @@
 ---
 title: 个人主页
-summary: 你正在浏览的这个站点。基于前后端分离与 Markdown 内容目录，实现可持续维护的 Wikipedia 风格个人站。
-tech: ["Vue 3", "Vite", "Vue Router", "Node.js", "Express", "markdown-it", "gray-matter", "Nginx", "PM2"]
+summary: 你正在浏览的这个站点。基于前后端分离与 Markdown 内容目录，实现可持续维护的 Wikipedia 风格个人站，并支持黑夜模式与内容版权边界声明。
+tech: ["Vue 3", "Vite", "Vue Router", "Node.js", "Express", "markdown-it", "gray-matter", "Nginx", "PM2", "Theme System"]
 startDate: "2026-04"
 status: 进行中
 link: https://github.com/NingAloha/personal_blog
@@ -40,6 +40,13 @@ featured: true
 - **内容优先**：减少后台系统复杂度，直接以 Markdown 作为内容源。
 - **可维护优先**：常见变更（新增文章、改摘要、改标签）不依赖数据库迁移。
 - **部署边界清晰**：前端可独立构建，后端可独立重启，Nginx 负责统一入口。
+- **阅读体验一致**：支持浅色/黑夜主题切换，并保留 Wikipedia 风格的克制排版。
+
+## 当前状态同步
+
+- 前端已支持主题切换（浅色/黑夜）与本地持久化
+- 内容继续采用 Markdown 目录维护，后端按请求实时读取
+- 仓库对外开源，但文章内容采用独立版权声明，见仓库根目录 `CONTENT_COPYRIGHT.md`
 
 ## 开发过程
 
