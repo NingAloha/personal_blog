@@ -278,6 +278,43 @@ cp your-avatar.jpg frontend/public/avatar.jpg
 cd frontend && npm run build
 ```
 
+建议头像使用正方形并压缩到较小体积（建议 `100~200KB`）。  
+头像更新后，如果站点接入了 Cloudflare，请执行 `Custom Purge` 清理：
+- `https://ningaloha.com/avatar.jpg`
+
+---
+
+## 性能维护基线
+
+### Lighthouse 目标
+
+- 手机端（Mobile）性能分：`>= 85`
+- 桌面端（Desktop）性能分：`>= 85`
+
+### 已落地优化
+
+- 首页头像补齐了明确尺寸属性（避免布局抖动）
+- 首页 infobox 图片容器固定为 `1:1`，并使用 `object-fit: cover`
+- 头像资源已压缩，降低首屏图片传输体积
+- 首页首屏卡片加入占位渲染，减少异步数据回填造成的首屏波动
+- `robots.txt` 与 `sitemap.xml` 已标准化，SEO 审核稳定通过
+
+### 发布后检查清单（推荐）
+
+```bash
+# 1) 头像是否为新资源（示例目标值会随文件更新而变化）
+curl -I https://ningaloha.com/avatar.jpg
+
+# 2) robots 与 sitemap 是否可访问
+curl https://ningaloha.com/robots.txt
+curl -I https://ningaloha.com/sitemap.xml
+```
+
+若上线后分数异常回退，优先检查：
+- Cloudflare 是否仍命中旧缓存（`cf-cache-status: HIT` + 旧 `content-length`）
+- 是否忘记执行 `cd frontend && npm run build` 导致 sitemap/静态资源未更新
+- 是否引入了未压缩的大图资源进入首页首屏
+
 ---
 
 ## 内容版权声明

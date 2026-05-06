@@ -1,7 +1,7 @@
 ---
 title: 个人主页
-summary: 你正在浏览的这个站点。基于前后端分离与 Markdown 内容目录，实现可持续维护的 Wikipedia 风格个人站，并支持黑夜模式与内容版权边界声明。
-tech: ["Vue 3", "Vite", "Vue Router", "Node.js", "Express", "markdown-it", "gray-matter", "Nginx", "PM2", "Theme System"]
+summary: 你正在浏览的这个站点。基于前后端分离与 Markdown 内容目录，实现 Wikipedia 风格个人站；当前已补齐 SEO 基础能力，并完成一轮 Lighthouse 性能优化（手机 97 / 桌面 100）。
+tech: ["Vue 3", "Vite", "Vue Router", "Node.js", "Express", "markdown-it", "gray-matter", "Nginx", "PM2", "Theme System", "SEO Meta", "JSON-LD", "Sitemap", "Cloudflare"]
 startDate: "2026-04"
 status: 进行中
 link: https://github.com/NingAloha/personal_blog
@@ -47,6 +47,20 @@ featured: false
 - 前端已支持主题切换（浅色/黑夜）与本地持久化
 - 内容继续采用 Markdown 目录维护，后端按请求实时读取
 - 仓库对外开源，但文章内容采用独立版权声明，见仓库根目录 `CONTENT_COPYRIGHT.md`
+- 已接入动态 SEO 元信息（title / description / canonical / Open Graph / Twitter Card）
+- 详情页已接入结构化数据（JSON-LD，Article/BlogPosting）
+- 已提供标准 `robots.txt` 与自动生成 `sitemap.xml`
+- 最近一次性能基线：Lighthouse 手机端 97、桌面端 100
+
+## SEO 与性能优化记录
+
+这轮优化的目标是“保证可收录 + 提升首屏性能 + 稳定发布流程”，主要动作如下：
+
+- 新增 `scripts/generate-sitemap.mjs`，构建时自动根据 `backend/content/**/*.md` 生成站点地图
+- 统一前端 SEO 注入逻辑（路由级基础 SEO + 详情页内容级 SEO）
+- 修复 `robots.txt` 被 CDN 托管规则干扰导致的工具误判
+- 首页头像补齐尺寸、固定 `1:1` 容器、降低图片体积，并优化首屏渲染占位策略
+- 发布后将“代码更新 + CDN 缓存刷新 + 指标复测”纳入常规流程
 
 ## 开发过程
 
