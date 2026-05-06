@@ -2,7 +2,7 @@
 title: 从“自动恢复”到“删除恢复器”：一次 SSH 双跳事故复盘
 summary: 这不是一篇 SSH 调参教程，而是一份真实故障复盘：我如何把一个不断叠加 autossh、watchdog、launchd、sleepwatcher 的“自愈系统”，最后删回一个普通 SSH tunnel。
 tags: [SSH, Networking, Engineering]
-date: "2026-05-03"
+date: "2026-05-06"
 featured: true
 ---
 
