@@ -13,7 +13,7 @@
           alt="avatar"
           width="900"
           height="900"
-          loading="lazy"
+          loading="eager"
           decoding="async"
         />
       </div>
@@ -61,6 +61,7 @@
         </router-link>
       </div>
     </template>
+    <div v-else class="featured-card featured-skeleton">项目加载中...</div>
     <p class="section-seeall">
       <router-link to="/projects">查看所有项目</router-link>
     </p>
@@ -79,6 +80,7 @@
         </router-link>
       </div>
     </template>
+    <div v-else class="featured-card featured-skeleton">随笔加载中...</div>
     <p class="section-seeall">
       <router-link to="/essays">查看所有随笔</router-link>
     </p>
@@ -97,6 +99,7 @@
         </router-link>
       </div>
     </template>
+    <div v-else class="featured-card featured-skeleton">技术博客加载中...</div>
     <p class="section-seeall">
       <router-link to="/tech-blogs">查看所有技术博客</router-link>
     </p>
@@ -117,19 +120,24 @@ const techBlogCount = ref(0)
 const siteVisits = ref(0)
 
 onMounted(async () => {
-  const [projects, essays, techBlogs, stats] = await Promise.all([
-    api.getProjects(),
-    api.getEssays(),
-    api.getTechBlogs(),
-    api.getSiteStats()
-  ])
-  projectCount.value = projects.length
-  essayCount.value = essays.length
-  techBlogCount.value = techBlogs.length
-  siteVisits.value = stats.siteVisits || 0
-  featuredProject.value = projects.find((p) => p.featured) || projects[0] || null
-  featuredEssay.value = essays.find((e) => e.featured) || essays[0] || null
-  featuredTechBlog.value = techBlogs.find((p) => p.featured) || techBlogs[0] || null
+  api.getProjects().then((projects) => {
+    projectCount.value = projects.length
+    featuredProject.value = projects.find((p) => p.featured) || projects[0] || null
+  }).catch(() => {})
+
+  api.getEssays().then((essays) => {
+    essayCount.value = essays.length
+    featuredEssay.value = essays.find((e) => e.featured) || essays[0] || null
+  }).catch(() => {})
+
+  api.getTechBlogs().then((techBlogs) => {
+    techBlogCount.value = techBlogs.length
+    featuredTechBlog.value = techBlogs.find((p) => p.featured) || techBlogs[0] || null
+  }).catch(() => {})
+
+  api.getSiteStats().then((stats) => {
+    siteVisits.value = stats.siteVisits || 0
+  }).catch(() => {})
 })
 </script>
 
@@ -190,6 +198,10 @@ onMounted(async () => {
   background: var(--bg);
   /* 让卡片不被右侧浮动的 infobox 遮住 */
   margin-right: calc(240px + 2em + 2px);
+}
+.featured-skeleton {
+  min-height: 130px;
+  color: var(--text-faint);
 }
 .featured-card:hover {
   background: var(--bg-muted);
