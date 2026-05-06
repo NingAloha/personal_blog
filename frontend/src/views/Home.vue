@@ -148,8 +148,14 @@ onMounted(async () => {
 }
 .infobox-image img {
   width: 100%;
+  height: 100%;
   display: block;
+  object-fit: cover;
   border-bottom: 1px solid var(--border);
+}
+.infobox-image {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
 }
 .infobox-table {
   width: 100%;
