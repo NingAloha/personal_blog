@@ -1,6 +1,6 @@
 ---
 title: 个人主页
-summary: 你正在浏览的这个站点。基于前后端分离与 Markdown 内容目录，实现 Wikipedia 风格个人站；当前已补齐 SEO 基础能力，并完成一轮 Lighthouse 性能优化（手机 97 / 桌面 100）。
+summary: 你正在浏览的这个站点。基于前后端分离与 Markdown 内容目录，实现 Wikipedia 风格个人站；当前已补齐 SEO 基础能力，并持续优化 Lighthouse 性能（移动端 99，桌面端文章页约 77）。
 tech: ["Vue 3", "Vite", "Vue Router", "Node.js", "Express", "markdown-it", "gray-matter", "Nginx", "PM2", "Theme System", "SEO Meta", "JSON-LD", "Sitemap", "Cloudflare"]
 startDate: "2026-04"
 status: 进行中
@@ -50,7 +50,7 @@ featured: false
 - 已接入动态 SEO 元信息（title / description / canonical / Open Graph / Twitter Card）
 - 详情页已接入结构化数据（JSON-LD，Article/BlogPosting）
 - 已提供标准 `robots.txt` 与自动生成 `sitemap.xml`
-- 最近一次性能基线：Lighthouse 手机端 97、桌面端 100
+- 最近一次性能基线：Lighthouse 移动端 99、桌面端（文章详情页）约 77
 
 ## SEO 与性能优化记录
 
