@@ -20,6 +20,8 @@ personal_blog/
 │       ├── projects/  # 项目 Markdown 文件
 │       ├── essays/    # 随笔 Markdown 文件
 │       └── tech-blogs/# 技术博客 Markdown 文件
+├── scripts/
+│   └── generate-sitemap.mjs  # 根据 Markdown 内容自动生成 sitemap.xml
 └── README.md
 ```
 
@@ -64,7 +66,10 @@ cd backend && npm install --omit=dev && cd ..
 cd frontend && npm install && npm run build && cd ..
 ```
 
-构建完成后，静态文件在 `frontend/dist/` 目录。
+构建完成后，静态文件在 `frontend/dist/` 目录。  
+另外，`frontend npm run build` 会自动先执行 sitemap 生成：
+- 输入来源：`backend/content/**/*.md`
+- 输出文件：`frontend/public/sitemap.xml`
 
 ### 第二步：用 PM2 启动后端
 
@@ -183,6 +188,13 @@ featured: false
 
 > 文件名即 URL slug，例如 `my-tech-post.md` 对应 `/tech-blogs/my-tech-post`。
 
+### 关于 SEO 与收录
+
+- 前端路由切换时会动态更新页面 `title`、`description`、`canonical`、Open Graph、Twitter Card。
+- 详情页会注入结构化数据（JSON-LD，`Article/BlogPosting`）。
+- `frontend/public/robots.txt` 已声明站点可抓取并指向站点地图。
+- 站点地图由 `scripts/generate-sitemap.mjs` 自动生成，不建议手改 `frontend/public/sitemap.xml`。
+
 ### 更新后重启
 
 修改 Markdown 文件后无需重启，Express 每次请求时实时读取文件。  
@@ -198,12 +210,16 @@ pm2 restart personal_blog_api
 
 ### 情况一：只新增/修改了 Markdown 文章
 
-后端是实时读取文件的，直接在服务器上操作即可，**无需重启、无需重新构建**：
+后端是实时读取文件的，内容页本身可直接生效；  
+但为了让搜索引擎尽快发现新 URL，建议同步重新构建一次前端以更新 sitemap：
 
 ```bash
 # 在服务器上直接拉取最新内容
 cd ~/personal_blog
 git pull
+
+# 建议：更新 sitemap 并发布新的静态资源
+cd frontend && npm run build && cd ..
 ```
 
 或者直接在服务器上新建/编辑 `.md` 文件，刷新页面即可看到变化。

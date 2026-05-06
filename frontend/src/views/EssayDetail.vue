@@ -25,6 +25,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { api } from '../utils/api'
 import { renderMarkdown } from '../utils/markdown'
+import { applySeo, buildArticleJsonLd } from '../utils/seo'
 
 const route = useRoute()
 const essay = ref(null)
@@ -37,6 +38,21 @@ async function load(slug) {
   notFound.value = false
   try {
     essay.value = await api.getEssay(slug)
+    const path = `/essays/${slug}`
+    applySeo({
+      title: essay.value.title,
+      description: essay.value.summary,
+      path,
+      type: 'article',
+      jsonLd: buildArticleJsonLd({
+        title: essay.value.title,
+        summary: essay.value.summary,
+        path,
+        datePublished: essay.value.date,
+        tags: essay.value.tags,
+        articleType: 'Article',
+      }),
+    })
     try {
       await api.trackArticleVisit(slug)
       const stats = await api.getArticleStats(slug)

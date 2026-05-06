@@ -1,5 +1,20 @@
-# Vue 3 + Vite
+# Frontend (personal_blog)
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+## Scripts
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+```bash
+npm run dev
+npm run build
+npm run preview
+```
+
+## Build behavior
+
+- `npm run build` 会先执行 `npm run generate:sitemap`，再进行 Vite 构建。
+- `generate:sitemap` 会读取仓库根目录下 `backend/content/**/*.md` 并生成：
+  - `public/sitemap.xml`
+
+## SEO files
+
+- `src/utils/seo.js`：统一管理页面 `title`、`description`、`canonical`、Open Graph、Twitter Card 和 JSON-LD。
+- `public/robots.txt`：声明抓取规则并指向 `https://ningaloha.com/sitemap.xml`。

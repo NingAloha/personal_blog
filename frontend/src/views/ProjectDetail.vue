@@ -26,6 +26,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { api } from '../utils/api'
 import { renderMarkdown } from '../utils/markdown'
+import { applySeo, buildArticleJsonLd } from '../utils/seo'
 
 const route = useRoute()
 const project = ref(null)
@@ -38,6 +39,21 @@ async function load(slug) {
   notFound.value = false
   try {
     project.value = await api.getProject(slug)
+    const path = `/projects/${slug}`
+    applySeo({
+      title: project.value.title,
+      description: project.value.summary,
+      path,
+      type: 'article',
+      jsonLd: buildArticleJsonLd({
+        title: project.value.title,
+        summary: project.value.summary,
+        path,
+        datePublished: project.value.startDate,
+        tags: project.value.tech,
+        articleType: 'Article',
+      }),
+    })
     try {
       await api.trackArticleVisit(slug)
       const stats = await api.getArticleStats(slug)

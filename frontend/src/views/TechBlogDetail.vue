@@ -23,6 +23,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { api } from '../utils/api'
 import { renderMarkdown } from '../utils/markdown'
+import { applySeo, buildArticleJsonLd } from '../utils/seo'
 
 const route = useRoute()
 const post = ref(null)
@@ -35,6 +36,21 @@ async function load(slug) {
   notFound.value = false
   try {
     post.value = await api.getTechBlog(slug)
+    const path = `/tech-blogs/${slug}`
+    applySeo({
+      title: post.value.title,
+      description: post.value.summary,
+      path,
+      type: 'article',
+      jsonLd: buildArticleJsonLd({
+        title: post.value.title,
+        summary: post.value.summary,
+        path,
+        datePublished: post.value.date,
+        tags: post.value.tags,
+        articleType: 'BlogPosting',
+      }),
+    })
     try {
       await api.trackArticleVisit(slug)
       const stats = await api.getArticleStats(slug)
