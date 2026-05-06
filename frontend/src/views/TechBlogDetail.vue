@@ -31,6 +31,14 @@ const loading = ref(true)
 const notFound = ref(false)
 const views = ref(0)
 
+function scheduleLowPriority(task) {
+  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+    window.requestIdleCallback(task, { timeout: 1500 })
+    return
+  }
+  setTimeout(task, 0)
+}
+
 async function load(slug) {
   loading.value = true
   notFound.value = false
@@ -51,13 +59,15 @@ async function load(slug) {
         articleType: 'BlogPosting',
       }),
     })
-    try {
-      await api.trackArticleVisit(slug)
-      const stats = await api.getArticleStats(slug)
-      views.value = stats.views || 0
-    } catch {
-      views.value = 0
-    }
+    scheduleLowPriority(async () => {
+      try {
+        await api.trackArticleVisit(slug)
+        const stats = await api.getArticleStats(slug)
+        views.value = stats.views || 0
+      } catch {
+        views.value = 0
+      }
+    })
   } catch {
     notFound.value = true
   } finally {
