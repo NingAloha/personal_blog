@@ -1,6 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import { readFileSync, readdirSync } from 'fs'
+import { readFileSync, readdirSync, existsSync, mkdirSync, writeFileSync } from 'fs'
 import { join, basename } from 'path'
 import matter from 'gray-matter'
 import { fileURLToPath } from 'url'
@@ -8,10 +8,53 @@ import { dirname } from 'path'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const CONTENT_DIR = join(__dirname, 'content')
+const DATA_DIR = join(__dirname, 'data')
+const STATS_FILE = join(DATA_DIR, 'stats.json')
+const VISIT_DEDUPE_WINDOW_MS = 10 * 60 * 1000
 
 const app = express()
 app.use(cors())
 app.use(express.json())
+
+function ensureStatsStore() {
+  if (!existsSync(DATA_DIR)) {
+    mkdirSync(DATA_DIR, { recursive: true })
+  }
+  if (!existsSync(STATS_FILE)) {
+    writeFileSync(
+      STATS_FILE,
+      JSON.stringify({ siteVisits: 0, articleViews: {} }, null, 2),
+      'utf-8'
+    )
+  }
+}
+
+function readStats() {
+  ensureStatsStore()
+  return JSON.parse(readFileSync(STATS_FILE, 'utf-8'))
+}
+
+function writeStats(stats) {
+  writeFileSync(STATS_FILE, JSON.stringify(stats, null, 2), 'utf-8')
+}
+
+function visitorKey(req, scope) {
+  const cfIp = req.headers['cf-connecting-ip']
+  const forwardedIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim()
+  const ip = cfIp || forwardedIp || req.socket.remoteAddress || 'unknown'
+  const ua = req.headers['user-agent'] || 'unknown'
+  return `${scope}:${ip}:${ua}`
+}
+
+const visitDedupeCache = new Map()
+
+function shouldCountVisit(req, scope) {
+  const key = visitorKey(req, scope)
+  const now = Date.now()
+  const lastSeen = visitDedupeCache.get(key)
+  visitDedupeCache.set(key, now)
+  return !lastSeen || now - lastSeen > VISIT_DEDUPE_WINDOW_MS
+}
 
 // ── 通用：读取某类内容的所有文件 ──
 function readAllItems(type) {
@@ -90,6 +133,59 @@ app.get('/api/tech-blogs/:slug', (req, res) => {
     res.json(readItem('tech-blogs', req.params.slug))
   } catch {
     res.status(404).json({ error: 'Not found' })
+  }
+})
+
+app.get('/api/stats/site', (_req, res) => {
+  try {
+    const stats = readStats()
+    res.set('Cache-Control', 'no-store')
+    res.json({ siteVisits: stats.siteVisits || 0 })
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
+app.post('/api/stats/site/visit', (req, res) => {
+  try {
+    const stats = readStats()
+    let counted = false
+    if (shouldCountVisit(req, 'site')) {
+      stats.siteVisits = (stats.siteVisits || 0) + 1
+      writeStats(stats)
+      counted = true
+    }
+    res.json({ ok: true, counted, siteVisits: stats.siteVisits || 0 })
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
+app.get('/api/stats/article/:slug', (req, res) => {
+  try {
+    const stats = readStats()
+    const slug = req.params.slug
+    res.set('Cache-Control', 'no-store')
+    res.json({ slug, views: stats.articleViews?.[slug] || 0 })
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
+app.post('/api/stats/article/:slug/visit', (req, res) => {
+  try {
+    const stats = readStats()
+    const slug = req.params.slug
+    let counted = false
+    if (shouldCountVisit(req, `article:${slug}`)) {
+      stats.articleViews = stats.articleViews || {}
+      stats.articleViews[slug] = (stats.articleViews[slug] || 0) + 1
+      writeStats(stats)
+      counted = true
+    }
+    res.json({ ok: true, counted, slug, views: stats.articleViews?.[slug] || 0 })
+  } catch (e) {
+    res.status(500).json({ error: e.message })
   }
 })
 

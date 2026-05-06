@@ -9,6 +9,7 @@
 
     <article>
       <h1 class="wiki-title">{{ essay.title }}</h1>
+      <p class="meta">阅读 {{ views }} 次</p>
 
       <!-- ── 正文 ── -->
       <div class="wiki-body" v-html="rendered" />
@@ -29,12 +30,20 @@ const route = useRoute()
 const essay = ref(null)
 const loading = ref(true)
 const notFound = ref(false)
+const views = ref(0)
 
 async function load(slug) {
   loading.value = true
   notFound.value = false
   try {
     essay.value = await api.getEssay(slug)
+    try {
+      await api.trackArticleVisit(slug)
+      const stats = await api.getArticleStats(slug)
+      views.value = stats.views || 0
+    } catch {
+      views.value = 0
+    }
   } catch {
     notFound.value = true
   } finally {
@@ -56,6 +65,11 @@ watch(() => route.params.slug, (slug) => slug && load(slug))
 }
 .breadcrumb a { color: var(--link); text-decoration: none; }
 .breadcrumb a:hover { text-decoration: underline; }
+.meta {
+  font-size: 0.85rem;
+  color: var(--text-faint);
+  margin: -0.25rem 0 1rem;
+}
 
 .tag {
   display: inline-block;

@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { api } from '../utils/api'
 
 const routes = [
   {
@@ -17,8 +18,19 @@ const routes = [
   { path: '/:pathMatch(.*)*', component: () => import('../views/NotFound.vue') },
 ]
 
-export default createRouter({
+const router = createRouter({
   history: createWebHistory(),
   routes,
   scrollBehavior: () => ({ top: 0 }),
 })
+
+router.afterEach(() => {
+  const key = 'site_visit_tracked'
+  if (sessionStorage.getItem(key)) return
+  sessionStorage.setItem(key, '1')
+  api.trackSiteVisit().catch(() => {
+    sessionStorage.removeItem(key)
+  })
+})
+
+export default router

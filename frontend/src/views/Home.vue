@@ -18,6 +18,7 @@
           <tr><th>项目做了</th><td>{{ projectCount }}个</td></tr>
           <tr><th>随笔写了</th><td>{{ essayCount }}篇</td></tr>
           <tr><th>技术博客</th><td>{{ techBlogCount }}篇</td></tr>
+          <tr><th>网站访问</th><td>{{ siteVisits }}次</td></tr>
         </tbody>
       </table>
       <div class="infobox-links">
@@ -106,16 +107,19 @@ const featuredTechBlog = ref(null)
 const projectCount = ref(0)
 const essayCount = ref(0)
 const techBlogCount = ref(0)
+const siteVisits = ref(0)
 
 onMounted(async () => {
-  const [projects, essays, techBlogs] = await Promise.all([
+  const [projects, essays, techBlogs, stats] = await Promise.all([
     api.getProjects(),
     api.getEssays(),
-    api.getTechBlogs()
+    api.getTechBlogs(),
+    api.getSiteStats()
   ])
   projectCount.value = projects.length
   essayCount.value = essays.length
   techBlogCount.value = techBlogs.length
+  siteVisits.value = stats.siteVisits || 0
   featuredProject.value = projects.find((p) => p.featured) || projects[0] || null
   featuredEssay.value = essays.find((e) => e.featured) || essays[0] || null
   featuredTechBlog.value = techBlogs.find((p) => p.featured) || techBlogs[0] || null
