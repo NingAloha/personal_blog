@@ -11,11 +11,10 @@
         <img
           src="/avatar.jpg"
           alt="avatar"
-          width="1200"
-          height="1200"
-          loading="eager"
+          width="900"
+          height="900"
+          loading="lazy"
           decoding="async"
-          fetchpriority="high"
         />
       </div>
       <table class="infobox-table">
