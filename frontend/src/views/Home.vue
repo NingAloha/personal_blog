@@ -8,7 +8,15 @@
     <aside class="infobox">
       <div class="infobox-image">
         <!-- 替换为你的头像 URL -->
-        <img src="/avatar.jpg" alt="avatar" />
+        <img
+          src="/avatar.jpg"
+          alt="avatar"
+          width="1200"
+          height="1200"
+          loading="eager"
+          decoding="async"
+          fetchpriority="high"
+        />
       </div>
       <table class="infobox-table">
         <tbody>
