@@ -1,269 +1,195 @@
 ---
-title: 构建一个自愈的多跳 SSH 网络通道
-summary: 记录一个基于 SSH ProxyJump、autossh、launchd 与 watchdog 的多跳网络通道设计，以及端口异常、半开连接和自动恢复的工程化处理。
-tags: [SSH, macOS, Launchd, Networking]
+title: 从“自动恢复”到“删除恢复器”：一次 SSH 双跳事故复盘
+summary: 这不是一篇 SSH 调参教程，而是一份真实故障复盘：我如何把一个不断叠加 autossh、watchdog、launchd、sleepwatcher 的“自愈系统”，最后删回一个普通 SSH tunnel。
+tags: [SSH, Networking, Engineering]
 date: "2026-05-03"
 featured: true
 ---
 
-## 背景
-跨区域开发中的 SSH 隧道问题，通常不是“会不会断”，而是“断了以后是否能快速、可控地恢复”。
+## 背景：一个本来很小的问题
+这次改造最初只有一个目标：在 Local Machine 上保留一个稳定的 SOCKS5 入口，给应用流量使用。
 
-如果只把它当作一次性排障，很容易得到一套只适配当前机器的脚本；如果把它当作系统设计问题，可以沉淀成可迁移的自愈架构。
+流量入口是 `127.0.0.1:1080`，链路是：
 
-> 说明：本文所有配置均为脱敏示例，不包含真实主机名、IP、账号或密钥路径。
+`Local Machine -> Entry Server -> Exit Server -> Internet`
 
-## TL;DR
-中文：
-这不是一篇“把 SSH 调到永不掉线”的文章，而是一套三层自愈模型：客户端维持连接、客户端真实探测、跳板机主动修复，目标是让故障在可控窗口内自动恢复。
+Entry Server 只负责跳板，Exit Server 只负责出口。
 
-English:
-This is not about making SSH never disconnect. It is a three-layer self-healing model: keep the tunnel alive on the client, probe real SOCKS usability on the client, and repair `sshd` on the bastion, so failures recover within a controlled window.
-
-## 目标与边界
-### 目标
-- 让跨区域连接具备可控出口和可预期路径
-- 将“偶发断连”变成“可自动恢复的短暂抖动”
-- 在系统重启、网络切换、睡眠唤醒后尽量自动恢复
-
-### 适用场景
-- 需要长期保持 SSH / SOCKS 连接的研发环境
-- 对公网出口一致性有要求（例如访问策略受出口影响）
-- 希望把手工重连转为系统托管
-
-### 不适用场景
-- 对极低延迟有硬实时要求的业务链路
-- 不允许本地持久代理进程的受限终端环境
-- 无法控制中间跳板和出口节点的场景
-
-### 成功标准（可按需调整）
-- 日常运行中，通道可用率达到预期（例如 > 99%）
-- 单次断连可在可接受窗口内自动恢复（例如 1~3 分钟）
-- 连续失败时进入冷却，避免高频重启
-
-## SSH 隧道失效的三种形态
-隧道失效不是一个问题，而是三类问题：
-
-| 类型 | 表现 | 危害 |
-|---|---|---|
-| 控制连接断 | SSH 进程退出 | 明显，容易被发现 |
-| 通道断 | 本地 `1080` 不监听 | 中等，代理直接不可用 |
-| 假活 | `1080` 在监听但代理不可用 | 最危险，最容易误判为正常 |
-
-这三类问题中，“假活”最难处理。它通常表现为：
-- 本地端口仍在
-- `autossh` 进程仍在
-- 真实代理探测失败
-- 手动重启后恢复
-
-所以健康检查不能只看进程与端口，必须做真实出网探测。
-
-## 系统架构
-整体路径：
-
-`Client (Mac) -> Bastion (JP) -> Target (US) -> Internet`
-
-```mermaid
-flowchart LR
-    A[Client Mac<br/>autossh + health check] --> B[Bastion JP<br/>sshd + watchdog]
-    B --> C[Target US<br/>service access]
-    C --> D[Internet]
-```
-
-分层职责：
-- `Client`：本地 `autossh` + `launchd health check`，保障用户侧可用性
-- `Bastion (JP)`：`sshd watchdog`，处理入口服务异常和半开连接风暴
-- `Target (US)`：业务访问目标节点
-
-这个拆分的关键是：本地层不承担服务端修复职责，服务端层也不承担用户侧可用性检测职责。
-
-## 恢复策略
-### 1. 被动恢复（autossh）
-职责：
-- 维持 SSH 长连接
-- 在进程退出后自动拉起
-
-特点：
-- 对“控制连接断”有效
-- 对“假活”不充分
-
-最小命令示例：
-```bash
-autossh -M 0 -N -D 127.0.0.1:1080 target \
-  -o ServerAliveInterval=30 \
-  -o ServerAliveCountMax=3 \
-  -o TCPKeepAlive=yes \
-  -o ExitOnForwardFailure=yes \
-  -o Compression=no
-```
-
-### 2. 主动检测（本地 health check）
-职责：
-- 检测 `autossh` 是否存在
-- 检测端口是否监听
-- 检测代理是否真实可用
-
-关键点：
-- 仅 `lsof -i :1080` 不够
-- 必须执行真实 SOCKS 探测，例如：
+## 最初的双跳：一个 SSH 进程就够了
+第一版只有一条命令：
 
 ```bash
-curl --socks5-hostname 127.0.0.1:1080 https://example.com --max-time 10
+ssh -N -D 127.0.0.1:1080 exit
 ```
 
-防抖逻辑示意：
+这个版本很直接：一个 SSH 进程、一个本地端口、一个固定路径。
+
+问题也很直接：合盖、网络切换、Wi-Fi 抖动后，隧道会断，需要手动重连。
+
+最开始我一直把这当成偶发问题。后来它开始变得更频繁：有时合盖后复现，有时网络切换后复现，有时甚至什么都没做也会卡死。真正危险的不是某一次故障，而是我开始逐渐失去对系统状态的确定性。
+
+## 我是怎么把它一步步做复杂的
+后续每一步在当时看都合理：
+
+- 手动重连太频繁，加 `autossh`
+- 想开机自动拉起，加 `launchd`
+- 想处理唤醒后断连，加 `sleepwatcher`
+- 想确认 1080 不是假活，加 health check
+- 想在探测失败后自动修复，加 watchdog
+- 甚至一度考虑/尝试过让 Entry Server 周期性重启 `sshd`
+
+问题不是某一步“明显错误”，而是这些局部最优叠加后，系统里出现了多个同时有恢复权限的组件。
+
+这些自动恢复器最危险的地方在于，它们在前期确实会提升体验。第一次自动重连成功时，我也会觉得系统“更高级”了。问题在于，当恢复逻辑互相叠加后，复杂度增长速度会快过人的理解速度。
+
+## 故障不是断线，而是状态混乱
+真正把我拖进故障现场的，不是一次“彻底断线”，而是一种很诡异的状态：看起来都活着，但就是不工作。
+
+一次典型过程是这样的。
+
+我先发现网页打不开，但 Shadowrocket 还显示 SOCKS 已连接。我第一反应是出口抖动，先等一会。几分钟后还是不通，于是去看本地端口：`lsof -i :1080` 还能看到 SSH 在 LISTEN。
+
+这时候直觉会告诉你“进程在，端口在，应该只是慢”。但我跑 `curl --socks5-hostname 127.0.0.1:1080 ...`，请求直接超时。
+
+接下来我开始手动 restart tunnel。第一次通常会短暂恢复，但很快又坏。然后状态变得越来越难理解：有时 `1080` 已经被旧 SSH 占着；有时 `autossh` 已经悄悄拉起新 SSH；有时 `launchd` KeepAlive 又在后台再起一个；有时 `sleepwatcher` 的唤醒动作又刚好撞上 health check 的 kill/restart。
+
+最后我已经分不清一件最基本的事：现在到底是谁在控制 tunnel。
+
+## 最严重的问题：控制面也失效了
+最开始我还以为只是 SOCKS 不通，范围只在代理层。
+
+后来我发现事情升级了：`ssh entry` 也开始失败，终端里直接出现 connection closed。不是偶发一次，而是连续几次都上不去。
+
+那一刻压力很真实，因为控制面也掉了。你不只是“代理坏了”，而是连用 SSH 进去修 SSH 的能力都不稳定。
+
+最后我只能打开 Provider Console 手动重启 `sshd`。到这一步我才确认：故障源已经不是单点网络抖动，而是恢复系统本身在制造故障。
+
+## 误判：我以为是服务器的 sshd 坏了
+我当时的误判链也很典型。
+
+第一步，我怀疑 Entry Server 的 `sshd` 不稳定。理由很“充分”：每次重启 `sshd` 后，问题经常会暂时恢复。
+
+第二步，我顺着这个判断走，开始在服务端加 watchdog，反复清理/重启 SSH 服务，甚至认真考虑“定时重启 `sshd`”。
+
+现在回看，关键误读在这里：我把“重启后短暂恢复”解释成“`sshd` 被修好了”。
+
+实际上，重启动作很可能只是强制清掉了旧 session 和异常 TCP 状态。也就是说，我误把“清状态”理解成了“修服务”。
+
+## 清空：先删掉所有恢复器
+排查转折点是先清空本地自动化，再观察基线。
+
+本机清理动作：
+
+- unload tunnel launchd
+- 删除 tunnel plist
+- 删除 health check plist
+- 停掉 `sleepwatcher`
+- 删除 wakeup/sleep 脚本
+- 删除 autossh 脚本
+- 卸载 `autossh`
+
+清理后确认项：
+
+- `lsof -i :1080` 无旧监听
+- `launchctl list` 中无 tunnel 项
+- `pgrep -af autossh` 无输出
+- 只剩系统 `ssh-agent`
+
+## 重建：Entry Server 只做 SSH bastion
+随后清理 Entry Server，让职责回到最小：
+
+- 删除 SSH watchdog service
+- 删除 SSH restart timer
+- 删除 watchdog shell script
+- 执行 `systemctl daemon-reload`
+- `sshd_config` 回到极简
+- 仅保留一个 SSH 监听端口
+- firewall 只保留必要端口
+
+做完后，Entry Server 回到“纯 SSH bastion”角色，不再承担自恢复编排。
+
+## 关键发现：基础设施流量必须 DIRECT
+这是本次复盘里最关键的发现。
+
+Shadowrocket 应该代理的是应用流量，不是基础设施流量。Entry Server、Exit Server、Blog Server、Lab Server 都必须强制 `DIRECT`。
+
+我后来才确认，在旧 VPN 和 Shadowrocket 规则残留同时存在时，SSH 控制连接自己也可能正在走代理。
+
+也就是说，我以为自己在直连 `entry`，实际上 SSH 可能已经先进入 SOCKS。然后 tunnel 又在这个路径里再建 tunnel，形成嵌套。
+
+常见异常就是：旧 `1080` 连接还被 Shadowrocket 持有，新 SSH 又试图占用同一个 `1080`。表面看像“偶发不稳定”，实际是路径已经不再线性。
+
+把基础设施地址提到规则最前面的 `DIRECT` 之后，变化是立刻可见的：
+
+- `ssh entry` 延迟明显下降
+- tunnel 重建速度明显变快
+- 之前很多“玄学不稳定”直接消失
+
+到这一步我才第一次认真怀疑：前面不少问题并不是 SSH 本身，而是路径嵌套。
+
+## 验证：双跳链路本身是健康的
+清空和规则修正后，我做了连续验证：
+
+- 普通 `ssh entry` 可稳定登录
+- 普通 `ssh exit` 可经由 Entry Server 登录
+- 手动启动 `ssh -N -D 127.0.0.1:1080 exit`
+- `curl --socks5-hostname 127.0.0.1:1080 https://api.ip.sb` 返回 Exit Server 出口
+- `70MB` 文件完整下载
+- `100MB` 文件完整下载
+
+验证重点不是峰值速度，而是连续传输过程中没有断流、没有 reset、没有再次触发 `sshd` 失联。
+
+这组证据说明：双跳路径本身可用，问题主要出在后面叠加的恢复层。
+
+## 最终方案：半自动恢复
+最终方案不是纯手动，而是低复杂度半自动：
+
+- 平时用普通 SSH 在后台运行 tunnel
+- 不使用 `autossh`
+- 不使用 `launchd` 自愈
+- 不使用 watchdog
+- 不使用 `sleepwatcher`
+- 只保留一个 `tunnel` alias
+
+后台启动命令：
+
 ```bash
-if ! check_proxy; then
-  FAIL_COUNT=$((FAIL_COUNT + 1))
-fi
+nohup ssh -o ExitOnForwardFailure=yes -N -D 127.0.0.1:1080 exit >/tmp/tunnel.log 2>&1 &
 ```
 
-说明：
-- 使用 `FAIL_COUNT` 做连续失败确认
-- 避免短时网络抖动触发误重启
+alias（先清旧进程，再起新连接）：
 
-### 3. 强制修复（Bastion watchdog）
-职责：
-- 处理跳板机 `sshd` 异常状态
-- 在入口服务退化时主动恢复
-
-建议触发条件：
-- `sshd inactive`：立即重启
-- SSH 端口不监听：连续确认后重启
-- systemd leftover：连续确认后重启
-- 大量连接中断或半开模式：达到阈值后重启
-
-不建议：
-- 仅依据 `kex_exchange_identification` 或 `banner exchange` 直接重启（容易被扫描流量误触发）
-
-## macOS 托管
-### LaunchAgent（托管 autossh）
-最小可运行模板（示意）：
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>Label</key>
-  <string>com.example.ssh.tunnel</string>
-  <key>ProgramArguments</key>
-  <array>
-    <string>/usr/local/bin/autossh</string>
-    <string>-M</string><string>0</string>
-    <string>-N</string>
-    <string>-D</string><string>127.0.0.1:1080</string>
-    <string>target</string>
-  </array>
-  <key>RunAtLoad</key>
-  <true/>
-  <key>KeepAlive</key>
-  <true/>
-  <key>StandardOutPath</key>
-  <string>/tmp/ssh-tunnel.out.log</string>
-  <key>StandardErrorPath</key>
-  <string>/tmp/ssh-tunnel.err.log</string>
-</dict>
-</plist>
-```
-
-常用命令：
 ```bash
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.example.ssh.tunnel.plist
-launchctl kickstart -k gui/$(id -u)/com.example.ssh.tunnel
-launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.example.ssh.tunnel.plist
+alias tunnel='pkill -f "127.0.0.1:1080" 2>/dev/null; sleep 1; nohup ssh -o ExitOnForwardFailure=yes -N -D 127.0.0.1:1080 exit >/tmp/tunnel.log 2>&1 &'
 ```
 
-睡眠唤醒后可采用延迟重启策略（例如 `sleep 30` 后 `kickstart`），避免网络栈尚未恢复时误判。
+我最后接受了“恢复需要人工参与”。但这个人工流程必须满足四个条件：快、固定、可重复、不需要猜。
 
-## 自愈流程
-```text
-every N seconds:
-  if local_port_missing:
-    restart_tunnel()
-    continue
+现在断线后的动作固定为：
 
-  probe_result = real_socks_probe()
-  if probe_result == ok:
-    clear_failure_counter()
-    continue
+1. 关 Shadowrocket
+2. 执行 `tunnel`
+3. 开 Shadowrocket
 
-  wait short_window
-  probe_result = real_socks_probe()
-  if probe_result == failed:
-    restart_tunnel()
-    enter_cooldown()
+它不再需要我去猜谁在重连，也不再需要等 watchdog、看 launchd、进 Provider Console、重启 `sshd`。
 
-restart_tunnel():
-  kill only tunnel-related autossh/ssh processes
-  do not pkill all ssh
-  wait for old port release
-  start launchd service
-  wait 60~120 seconds with repeated real probes
-```
+删掉这层自动化之后，系统重新变得线性：断线就是断线，重连就是重连。我可以明确知道哪个进程负责 tunnel，哪个端口负责 SOCKS，哪个动作会触发恢复，哪一步失败了。系统重新回到了人的理解范围。
 
-### 恢复动作的边界
-自愈脚本最大的风险不是“不重启”，而是“重启错对象”。
+## 我最后删掉了什么
+我最后删掉的是“多恢复器并发决策机制”，包括：
 
-错误示例：
-```bash
-pkill ssh
-```
+- 自动重连协调（`autossh` + `launchd` + watchdog）
+- 唤醒触发恢复（`sleepwatcher`）
+- 服务端周期性重启 SSH 的兜底思路
 
-风险：
-- 杀掉正在排障的登录连接
-- 杀掉 `ProxyJump` 会话
-- 杀掉其他远程开发连接
+我保留的是最小恢复动作：一个明确的端口、一个明确的命令、一个明确的重建入口。
 
-更安全的方式是仅匹配本地 SOCKS 端口关联的 `autossh/ssh` 进程。
+## 和《简单的事》的关系
+《简单的事》讲的是原则。
 
-## 设计原则
-1. 不追求不断线：网络抖动和跨区域路径波动不可避免。
-2. 追求可恢复：系统目标是把故障收敛到可接受恢复时间。
-3. 允许受控误杀，拒绝假活：Fail fast 好过 Fail silently。
+这篇文章的目标不是介绍 SSH 双跳，而是用 SSH 双跳这个具体事故证明《简单的事》那篇文章的观点。
 
-一句话总结：
+## 结论：删除机制也是工程能力
+“真正危险的不是断线，而是不知道系统正在做什么。”
 
-`隧道稳定性 ≠ 保证连接不断；隧道稳定性 = 保证系统最终可恢复。`
-
-## 为什么不用其他方案
-- `frp`：需要额外服务端组件与治理成本
-- `wireguard`：网络维护与路由管理成本较高
-- `mosh`：不支持端口转发场景
-- `Cloudflare Tunnel`：可控性与依赖边界不一定满足要求
-
-结论：在“轻量、可控、可脚本化”的前提下，`SSH + autossh` 仍是性价比较高的基线方案。
-
-## 观测与指标
-建议至少记录：
-- 每日断连次数
-- 平均恢复时长（MTTR）
-- 连续稳定运行时长
-- 恢复动作触发次数（人工/自动）
-
-观测目标不是“日志越多越好”，而是能回答：
-1. 什么时候断了
-2. 多久恢复
-3. 为什么恢复失败
-
-## 排查建议
-1. `lsof -i :1080`
-2. `curl --socks5-hostname ...`
-3. 查看 autossh / launchd 日志
-4. `ssh -vvv` 分析连接过程
-5. 单独测试每一跳节点
-
-## 最终模型
-```text
-Client:
-  autossh + health check
-Server:
-  sshd + watchdog
-Strategy:
-  detect -> decide -> force recover
-```
-
-## 总结
-这套方案的重点不是“把 SSH 调到永不掉线”，而是通过分层职责和自愈策略，把故障控制在可恢复窗口内。
-
-当你把问题从“连接参数调优”提升到“系统恢复设计”，这套方法可以迁移到更多隧道类场景，而不绑定某一台机器或某一份脚本。
+在这个场景里，我最后接受了一个更朴素的判断：能在 30 秒内被人稳定恢复、并且恢复过程完全可解释的系统，比一个看似无人值守但内部状态不可见的系统更可靠。
