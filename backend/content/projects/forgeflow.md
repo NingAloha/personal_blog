@@ -5,7 +5,7 @@ tech: ["Python", "Workflow Orchestration", "State Machine", "CLI/TUI"]
 startDate: "2026-05"
 status: 开发中（Early）
 link: https://github.com/NingAloha/ForgeFlow
-featured: false
+featured: true
 ---
 
 ## 项目简介

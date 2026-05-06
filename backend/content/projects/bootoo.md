@@ -5,7 +5,7 @@ tech: ["Python", "macOS (Apple Silicon)", "diskutil", "dd", "asr"]
 startDate: "2026-04"
 status: 重构中（Early）
 link: https://github.com/NingAloha/bootoo
-featured: true
+featured: false
 ---
 
 ## 项目简介

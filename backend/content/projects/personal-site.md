@@ -5,7 +5,7 @@ tech: ["Vue 3", "Vite", "Vue Router", "Node.js", "Express", "markdown-it", "gray
 startDate: "2026-04"
 status: 进行中
 link: https://github.com/NingAloha/personal_blog
-featured: true
+featured: false
 ---
 
 ## 项目简介

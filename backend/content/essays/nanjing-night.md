@@ -3,7 +3,7 @@ title: 金陵•睡着•其一
 summary: 南京的雨，不停地下，不停地下，想再见，不想再见......
 tags: ["游记"]
 date: "2024-11-17"
-featured: false
+featured: true
 ---
 
 ## 二四年十一月十二日晚八时
