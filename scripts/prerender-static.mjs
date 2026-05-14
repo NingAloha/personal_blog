@@ -17,8 +17,14 @@ function truncate(text, max = 160) {
   return text.length > max ? `${text.slice(0, max - 1)}…` : text
 }
 
+function normalizeCanonicalPath(path = '/') {
+  if (!path || path === '/') return '/'
+  if (path.endsWith('/')) return path
+  return `${path}/`
+}
+
 function buildAbsoluteUrl(path = '/') {
-  return new URL(path, SITE_URL).toString()
+  return new URL(normalizeCanonicalPath(path), SITE_URL).toString()
 }
 
 function parseValue(raw) {
