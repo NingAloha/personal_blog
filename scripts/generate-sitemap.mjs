@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, writeFileSync, statSync } from 'fs'
 import { join, resolve, basename, dirname } from 'path'
 import { fileURLToPath } from 'url'
+import { getContentRoutes } from './content-routes.mjs'
 
 const SITE_URL = 'https://ningaloha.com'
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
@@ -54,15 +55,20 @@ function toIsoDate(value) {
 
 function buildDynamicEntries() {
   const entries = []
+  const routeSet = new Set(getContentRoutes())
+
   for (const cfg of contentConfigs) {
     const dirPath = join(CONTENT_ROOT, cfg.dir)
     const files = readdirSync(dirPath).filter((f) => f.endsWith('.md')).sort()
 
     for (const file of files) {
+      const slug = basename(file, '.md')
+      const path = `${cfg.basePath}/${slug}`
+      if (!routeSet.has(path)) continue
+
       const filePath = join(dirPath, file)
       const raw = readFileSync(filePath, 'utf-8')
       const data = parseFrontmatter(raw)
-      const slug = basename(file, '.md')
 
       let lastmod = null
       for (const k of cfg.dateKeys) {
@@ -74,7 +80,7 @@ function buildDynamicEntries() {
       }
 
       entries.push({
-        path: `${cfg.basePath}/${slug}`,
+        path,
         lastmod,
         changefreq: 'monthly',
         priority: cfg.priority,
