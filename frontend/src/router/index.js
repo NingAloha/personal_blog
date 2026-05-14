@@ -86,7 +86,13 @@ router.afterEach((to) => {
   const key = 'site_visit_tracked'
   if (sessionStorage.getItem(key)) return
   sessionStorage.setItem(key, '1')
-  api.trackSiteVisit().catch(() => {
+  api.trackSiteVisit().then((stats) => {
+    const siteVisits = stats?.siteVisits
+    if (typeof siteVisits === 'number') {
+      sessionStorage.setItem('site_visits_latest', String(siteVisits))
+      window.dispatchEvent(new CustomEvent('site-visits-updated', { detail: { siteVisits } }))
+    }
+  }).catch(() => {
     sessionStorage.removeItem(key)
   })
 })

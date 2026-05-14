@@ -8,7 +8,7 @@ import { dirname } from 'path'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const CONTENT_DIR = join(__dirname, 'content')
-const DATA_DIR = join(__dirname, 'data')
+const DATA_DIR = process.env.DATA_DIR || join(__dirname, 'data')
 const STATS_FILE = join(DATA_DIR, 'stats.json')
 const VISIT_DEDUPE_WINDOW_MS = 10 * 60 * 1000
 
@@ -35,6 +35,7 @@ function readStats() {
 }
 
 function writeStats(stats) {
+  ensureStatsStore()
   writeFileSync(STATS_FILE, JSON.stringify(stats, null, 2), 'utf-8')
 }
 
@@ -193,4 +194,6 @@ const PORT = process.env.PORT || 3000
 
 app.listen(PORT, () => {
   console.log(`Backend running at http://localhost:${PORT}`)
+  console.log(`Stats data dir: ${DATA_DIR}`)
+  console.log(`Stats file: ${STATS_FILE}`)
 })

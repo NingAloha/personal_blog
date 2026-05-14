@@ -1,5 +1,24 @@
 # personal_blog
 
+## 统计数据（访问量 / 阅读量）持久化与迁移
+
+本项目的访问量/阅读量属于**运行时状态**，不应该依赖 Git 仓库文件来持久化或迁移。
+
+### 默认行为（本地开发）
+
+- 未设置环境变量时，后端会把统计写入 `backend/data/stats.json`（若不存在会自动创建）。
+
+### 服务器部署（推荐）
+
+1. 创建持久化目录：
+   - `sudo mkdir -p /var/lib/personal_blog`
+2. 迁移旧数据（如有）：
+   - 把旧服务器/旧部署目录里的 `stats.json` 拷贝到 `/var/lib/personal_blog/stats.json`
+3. 注入环境变量并重启服务（以 PM2 为例）：
+   - `DATA_DIR=/var/lib/personal_blog pm2 restart personal_blog_api --update-env`
+
+注意：部署时不要覆盖 `/var/lib/personal_blog`，它是运行时数据目录。
+
 Wikipedia 排版风格的个人主页，前后端分离架构。
 
 - **前端**: Vue 3 + Vite，构建后托管静态文件

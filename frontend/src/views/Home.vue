@@ -108,7 +108,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onBeforeUnmount, onMounted } from 'vue'
 import { api } from '../utils/api'
 
 const featuredProject = ref(null)
@@ -119,7 +119,30 @@ const essayCount = ref(0)
 const techBlogCount = ref(0)
 const siteVisits = ref(0)
 
+function trySetSiteVisitsFromStorage() {
+  try {
+    const raw = sessionStorage.getItem('site_visits_latest')
+    if (!raw) return false
+    const n = Number.parseInt(raw, 10)
+    if (!Number.isFinite(n)) return false
+    siteVisits.value = n
+    return true
+  } catch {
+    return false
+  }
+}
+
+function handleSiteVisitsUpdated(e) {
+  const n = e?.detail?.siteVisits
+  if (typeof n === 'number' && Number.isFinite(n)) {
+    siteVisits.value = n
+  }
+}
+
 onMounted(async () => {
+  trySetSiteVisitsFromStorage()
+  window.addEventListener('site-visits-updated', handleSiteVisitsUpdated)
+
   api.getProjects().then((projects) => {
     projectCount.value = projects.length
     featuredProject.value = projects.find((p) => p.featured) || projects[0] || null
@@ -138,6 +161,10 @@ onMounted(async () => {
   api.getSiteStats().then((stats) => {
     siteVisits.value = stats.siteVisits || 0
   }).catch(() => {})
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('site-visits-updated', handleSiteVisitsUpdated)
 })
 </script>
 
