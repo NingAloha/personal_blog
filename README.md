@@ -1,28 +1,36 @@
 # personal_blog
 
-## 统计数据（访问量 / 阅读量）持久化与迁移
+Wikipedia 排版风格的个人站（前后端分离）：内容以 Markdown 维护，前端负责展示与 SEO/预渲染，后端按请求读取 `backend/content/` 提供 API，并记录基础访问/阅读统计（可选、可持久化）。
 
-本项目的访问量/阅读量属于**运行时状态**，不应该依赖 Git 仓库文件来持久化或迁移。
+## 快速开始（本地开发）
 
-### 默认行为（本地开发）
+```bash
+# 1) 启动后端（默认端口 3000）
+cd backend
+npm install
+npm run dev
 
-- 未设置环境变量时，后端会把统计写入 `backend/data/stats.json`（若不存在会自动创建）。
+# 2) 新开终端，启动前端（默认端口 5173；/api 代理到后端）
+cd frontend
+npm install
+npm run dev
+```
 
-### 服务器部署（推荐）
+浏览器访问 `http://localhost:5173`。
 
-1. 创建持久化目录：
-   - `sudo mkdir -p /var/lib/personal_blog`
-2. 迁移旧数据（如有）：
-   - 把旧服务器/旧部署目录里的 `stats.json` 拷贝到 `/var/lib/personal_blog/stats.json`
-3. 注入环境变量并重启服务（以 PM2 为例）：
-   - `DATA_DIR=/var/lib/personal_blog pm2 restart personal_blog_api --update-env`
+常见报错：
+- Vite `proxy ECONNREFUSED /api/...`：后端没启动或端口不对（默认 `3000`）。
+- `npm install ENOTEMPTY ... node_modules/...`：通常是依赖目录残留/占用导致，停掉相关进程后重试；必要时在对应目录执行 `rm -rf node_modules package-lock.json && npm install`。
 
-注意：部署时不要覆盖 `/var/lib/personal_blog`，它是运行时数据目录。
+## 统计数据（访问量 / 阅读量）
 
-Wikipedia 排版风格的个人主页，前后端分离架构。
+访问量/阅读量属于**运行时状态**，不要依赖 Git 仓库文件持久化。
 
-- **前端**: Vue 3 + Vite，构建后托管静态文件
-- **后端**: Node.js + Express，读取 `backend/content/` 目录下的 Markdown 文件提供 API
+默认行为（本地开发）：
+- 未设置 `DATA_DIR` 时，统计写入 `backend/data/stats.json`（不存在会自动创建；该文件已在 `.gitignore` 中忽略）。
+
+推荐行为（服务器部署）：
+- 通过环境变量把统计写到独立持久化目录（例如 `/var/lib/personal_blog`），避免被部署脚本的 `git reset/clean` 影响。
 
 ---
 
@@ -40,27 +48,25 @@ personal_blog/
 │       ├── essays/    # 随笔 Markdown 文件
 │       └── tech-blogs/# 技术博客 Markdown 文件
 ├── scripts/
-│   └── generate-sitemap.mjs  # 根据 Markdown 内容自动生成 sitemap.xml
+│   ├── generate-sitemap.mjs  # 根据 Markdown 内容自动生成 sitemap.xml
+│   └── prerender-static.mjs  # 构建后预渲染静态路由
 └── README.md
 ```
 
 ---
 
-## 本地开发
+## 当前能力（简述）
 
-```bash
-# 1. 启动后端（端口 3000）
-cd backend
-npm install
-npm run dev
+- 内容：`backend/content/**.md`（front matter + 正文）
+- 主题：浅色/黑夜切换（本地持久化）
+- 语言：UI 结构支持中/英切换（浏览器默认 + 本地持久化）；`backend/content/` 不做翻译
+- SEO：title/description/canonical/OG/Twitter Card + JSON-LD（Article/BlogPosting）
+- 构建：自动生成 `frontend/public/sitemap.xml` + 预渲染静态路由到 `frontend/dist/`
+- 统计：站点访问量 + 文章阅读量（可选；通过 `DATA_DIR` 做持久化）
 
-# 2. 新开一个终端，启动前端（端口 5173，/api 自动代理到后端）
-cd frontend
-npm install
-npm run dev
-```
+## 内容维护（写作/更新）
 
-浏览器访问 `http://localhost:5173`
+新增/修改内容只需要编辑 `backend/content/` 下的 Markdown；后端按请求实时读取，一般不需要重启。
 
 ---
 
@@ -70,7 +76,7 @@ npm run dev
 
 - Node.js 18+
 - 服务器上已安装 Nginx（或其他反向代理）
-- 推荐使用 PM2 管理后端进程
+- 建议用 systemd 管理后端进程
 
 ### 第一步：克隆并安装依赖
 
@@ -82,27 +88,46 @@ cd personal_blog
 cd backend && npm install --omit=dev && cd ..
 
 # 安装前端依赖并构建
-cd frontend && npm install && npm run build && cd ..
+cd frontend && npm ci && npm run build && cd ..
 ```
 
 构建完成后，静态文件在 `frontend/dist/` 目录。  
-另外，`frontend npm run build` 会自动先执行 sitemap 生成：
+另外，`frontend npm run build` 会自动生成 sitemap 并进行预渲染：
 - 输入来源：`backend/content/**/*.md`
 - 输出文件：`frontend/public/sitemap.xml`
+- 预渲染输出：`frontend/dist/`
 
-### 第二步：用 PM2 启动后端
+### 第二步：用 systemd 启动后端
+
+示例 unit（路径与用户名按你的服务器调整）：
+
+```ini
+[Unit]
+Description=Personal Blog Backend
+After=network.target
+
+[Service]
+Type=simple
+User=blog
+Group=blog
+WorkingDirectory=/var/www/personal_blog/backend
+Environment=PORT=3000
+Environment=DATA_DIR=/var/lib/personal_blog
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+```
+
+配套准备：
 
 ```bash
-# 全局安装 PM2（如果没有）
-npm install -g pm2
-
-# 启动后端服务（端口 3000）
-cd backend
-pm2 start server.js --name personal_blog_api
-
-# 设置开机自启
-pm2 save
-pm2 startup
+sudo mkdir -p /var/lib/personal_blog
+sudo chown -R blog:blog /var/lib/personal_blog
+sudo systemctl daemon-reload
+sudo systemctl enable --now personal-blog-backend
 ```
 
 ### 第三步：配置 Nginx
@@ -148,9 +173,9 @@ certbot --nginx -d your-domain.com
 
 ---
 
-## 内容维护
+## 内容格式参考
 
-### 新增项目
+### 新增项目（projects）
 
 在 `backend/content/projects/` 下新建一个 `.md` 文件，例如 `my-project.md`：
 
@@ -170,7 +195,7 @@ featured: false
 正文 Markdown 内容...
 ```
 
-### 新增随笔
+### 新增随笔（essays）
 
 在 `backend/content/essays/` 下新建一个 `.md` 文件，例如 `my-essay.md`：
 
@@ -189,7 +214,7 @@ featured: false
 > 文件名即 URL slug，例如 `my-essay.md` 对应 `/essays/my-essay`。  
 > `featured: true` 的条目会显示在主页精选区域（每类取第一个）。
 
-### 新增技术博客
+### 新增技术博客（tech-blogs）
 
 在 `backend/content/tech-blogs/` 下新建一个 `.md` 文件，例如 `my-tech-post.md`：
 
@@ -207,23 +232,12 @@ featured: false
 
 > 文件名即 URL slug，例如 `my-tech-post.md` 对应 `/tech-blogs/my-tech-post`。
 
-### 关于 SEO 与收录
+## SEO 与收录
 
 - 前端路由切换时会动态更新页面 `title`、`description`、`canonical`、Open Graph、Twitter Card。
 - 详情页会注入结构化数据（JSON-LD，`Article/BlogPosting`）。
 - `frontend/public/robots.txt` 已声明站点可抓取并指向站点地图。
 - 站点地图由 `scripts/generate-sitemap.mjs` 自动生成，不建议手改 `frontend/public/sitemap.xml`。
-
-### 更新后重启
-
-修改 Markdown 文件后无需重启，Express 每次请求时实时读取文件。  
-如果修改了 `server.js`，需要重启后端：
-
-```bash
-pm2 restart personal_blog_api
-```
-
----
 
 ## 更新上线流程
 
@@ -270,9 +284,8 @@ cd frontend && npm run build && cd ..
 git add -A && git commit -m "描述你的改动" && git push
 
 # 2. 在服务器上拉取并重启后端
-cd ~/personal_blog
-git pull
-pm2 restart personal_blog_api
+cd ~/personal_blog && git pull
+sudo systemctl restart personal-blog-backend
 ```
 
 ---
@@ -280,10 +293,9 @@ pm2 restart personal_blog_api
 ### 一键全量更新（前端 + 后端都有改动）
 
 ```bash
-cd ~/personal_blog
-git pull
+cd ~/personal_blog && git pull
 cd frontend && npm run build && cd ..
-pm2 restart personal_blog_api
+sudo systemctl restart personal-blog-backend
 ```
 
 ---
