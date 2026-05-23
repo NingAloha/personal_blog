@@ -3,7 +3,7 @@ title: Authority 比 Abstraction 更重要：ForgeFlow 的一次语义收缩
 summary: ForgeFlow 曾经一路膨胀成“workflow runtime / orchestration runtime / multi-agent system”。直到我开始为长周期项目负责：我才逐渐意识到，真正缺的不是抽象层，而是工程状态的 authority——哪些结论可信、凭什么可信、失败后该 STAY 还是 BACKFLOW。
 tags: [ForgeFlow, Engineering, AI, State, Workflow]
 date: "2026-05-23"
-featured: false
+featured: true
 ---
 
 这篇文章不是在介绍 ForgeFlow 的“能力”，而是在复盘它的一次语义修正：我为什么开始删 abstraction，以及我删的其实不是“未来”，而是当前不可承担的语义债。
