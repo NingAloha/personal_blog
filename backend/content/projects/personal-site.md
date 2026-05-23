@@ -1,7 +1,7 @@
 ---
 title: 个人主页
-summary: 你正在浏览的这个站点。基于前后端分离与 Markdown 内容目录，实现 Wikipedia 风格个人站；当前已补齐 SEO 基础能力，并持续优化 Lighthouse 性能（移动端 99，桌面端文章页约 77）。
-tech: ["Vue 3", "Vite", "Vue Router", "Node.js", "Express", "markdown-it", "gray-matter", "Nginx", "PM2", "Theme System", "SEO Meta", "JSON-LD", "Sitemap", "Cloudflare"]
+summary: 你正在浏览的这个站点。基于前后端分离与 Markdown 内容目录，实现 Wikipedia 风格个人站；补齐主题/语言切换、SEO、sitemap 与静态预渲染，并持续优化 Lighthouse 性能（移动端 99，桌面端文章页约 77）。
+tech: ["Vue 3", "Vite", "Vue Router", "Node.js", "Express", "markdown-it", "gray-matter", "Nginx", "systemd", "Theme System", "i18n", "SEO Meta", "JSON-LD", "Sitemap", "Prerender", "Cloudflare"]
 startDate: "2026-04"
 status: 进行中
 link: https://github.com/NingAloha/personal_blog
@@ -33,7 +33,7 @@ featured: false
 - **markdown-it**：前端 Markdown 渲染
 - **gray-matter**：解析 Markdown Front-matter 元数据
 - **Nginx**：静态资源托管与 `/api` 反向代理
-- **PM2**：后端进程托管与重启管理
+- **systemd**：后端进程托管与重启管理
 
 ## 设计理念
 
@@ -48,13 +48,14 @@ featured: false
 
 ## 当前状态同步
 
-- 前端已支持主题切换（浅色/黑夜）与本地持久化
+- 前端已支持主题切换（浅色/黑夜）与语言切换（中/英），并进行本地持久化
 - 内容继续采用 Markdown 目录维护，后端按请求实时读取
 - 仓库对外开源，但文章内容采用独立版权声明，见仓库根目录 `CONTENT_COPYRIGHT.md`
 - 已接入动态 SEO 元信息（title / description / canonical / Open Graph / Twitter Card）
 - 详情页已接入结构化数据（JSON-LD，Article/BlogPosting）
-- 已提供标准 `robots.txt` 与自动生成 `sitemap.xml`
+- 已提供标准 `robots.txt`、自动生成 `sitemap.xml` 与静态预渲染产物
 - 最近一次性能基线：Lighthouse 移动端 99、桌面端（文章详情页）约 77
+- 统计数据属于运行时状态：部署时不依赖 Git 目录；线上通过 `DATA_DIR` 指向独立持久化路径
 
 ## SEO 与性能优化记录
 
