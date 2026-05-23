@@ -1,16 +1,16 @@
 <template>
   <article>
-    <h1 class="wiki-title">文学随笔</h1>
-    <p class="page-lead">一些零散的文字，不成体系，但都是真实的。</p>
+    <h1 class="wiki-title">{{ t('nav.essays') }}</h1>
+    <p class="page-lead">{{ t('list.essaysLead') }}</p>
 
-    <div v-if="loading" class="loading">加载中...</div>
+    <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <table v-else class="wiki-list-table">
       <thead>
         <tr>
-          <th>标题</th>
-          <th>摘要</th>
-          <th>标签</th>
-          <th>日期</th>
+          <th>{{ t('list.thTitle') }}</th>
+          <th>{{ t('list.thSummary') }}</th>
+          <th>{{ t('list.thTags') }}</th>
+          <th>{{ t('list.thDate') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -32,6 +32,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { api } from '../utils/api'
+import { t } from '../i18n'
 
 const essays = ref([])
 const loading = ref(true)

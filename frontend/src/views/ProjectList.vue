@@ -1,17 +1,17 @@
 <template>
   <article>
-    <h1 class="wiki-title">项目</h1>
-    <p class="page-lead">这里是我做过和正在做的项目，点击标题查看详情。</p>
+    <h1 class="wiki-title">{{ t('nav.projects') }}</h1>
+    <p class="page-lead">{{ t('list.projectsLead') }}</p>
 
-    <div v-if="loading" class="loading">加载中...</div>
+    <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <table v-else class="wiki-list-table">
       <thead>
         <tr>
-          <th>项目名</th>
-          <th>简介</th>
-          <th>技术栈</th>
-          <th>状态</th>
-          <th>时间</th>
+          <th>{{ t('list.projectName') }}</th>
+          <th>{{ t('list.thSummary') }}</th>
+          <th>{{ t('list.projectTech') }}</th>
+          <th>{{ t('list.projectStatus') }}</th>
+          <th>{{ t('list.projectTime') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -34,6 +34,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { api } from '../utils/api'
+import { t } from '../i18n'
 
 const projects = ref([])
 const loading = ref(true)

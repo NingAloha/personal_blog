@@ -2,16 +2,21 @@
   <div class="wiki-page">
     <header class="wiki-header">
       <div class="wiki-header-inner">
-        <router-link class="wiki-logo" to="/">寧中亙的个人主页</router-link>
+        <router-link class="wiki-logo" to="/">{{ t('site.name') }}</router-link>
         <nav class="wiki-nav">
-          <router-link to="/">主页</router-link>
-          <router-link to="/projects">项目</router-link>
-          <router-link to="/essays">文学随笔</router-link>
-          <router-link to="/tech-blogs">技术博客</router-link>
+          <router-link to="/">{{ t('nav.home') }}</router-link>
+          <router-link to="/projects">{{ t('nav.projects') }}</router-link>
+          <router-link to="/essays">{{ t('nav.essays') }}</router-link>
+          <router-link to="/tech-blogs">{{ t('nav.techBlogs') }}</router-link>
         </nav>
-        <button class="theme-toggle" type="button" @click="toggleTheme">
-          {{ isDark ? '浅色' : '黑夜' }}
-        </button>
+        <div class="header-actions">
+          <button class="theme-toggle" type="button" @click="toggleTheme">
+            {{ isDark ? t('toggles.themeLight') : t('toggles.themeDark') }}
+          </button>
+          <button class="lang-toggle" type="button" @click="toggleLocale">
+            {{ locale === 'zh' ? t('toggles.langEn') : t('toggles.langZh') }}
+          </button>
+        </div>
       </div>
     </header>
     <main class="wiki-main">
@@ -19,17 +24,23 @@
     </main>
     <footer class="wiki-footer">
       <div class="wiki-footer-inner">
-        本页面最后修改于 {{ today }} &nbsp;·&nbsp; 内容由本人维护
+        {{ t('footer.lastModified', { date: today }) }}
       </div>
     </footer>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
+import { locale, setLocale, t } from '../../i18n'
 
-const today = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })
+const today = ref('')
 const isDark = ref(false)
+
+function updateToday() {
+  const lang = locale.value === 'en' ? 'en-US' : 'zh-CN'
+  today.value = new Date().toLocaleDateString(lang, { year: 'numeric', month: 'long', day: 'numeric' })
+}
 
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme
@@ -42,7 +53,12 @@ function toggleTheme() {
   localStorage.setItem('theme', nextTheme)
 }
 
+function toggleLocale() {
+  setLocale(locale.value === 'zh' ? 'en' : 'zh')
+}
+
 onMounted(() => {
+  updateToday()
   const savedTheme = localStorage.getItem('theme')
   if (savedTheme === 'dark' || savedTheme === 'light') {
     applyTheme(savedTheme)
@@ -51,6 +67,8 @@ onMounted(() => {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
   applyTheme(prefersDark ? 'dark' : 'light')
 })
+
+watch(locale, updateToday)
 </script>
 
 <style scoped>
@@ -121,6 +139,23 @@ onMounted(() => {
 .theme-toggle:hover {
   background: var(--border-soft);
 }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.lang-toggle {
+  border: 1px solid var(--border);
+  background: var(--bg-muted);
+  color: var(--text-soft);
+  border-radius: 3px;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.lang-toggle:hover {
+  background: var(--border-soft);
+}
 
 /* ── Main ── */
 .wiki-main {
@@ -164,6 +199,9 @@ onMounted(() => {
     font-size: 0.82rem;
   }
   .theme-toggle {
+    margin-left: auto;
+  }
+  .header-actions {
     margin-left: auto;
   }
   .wiki-main {

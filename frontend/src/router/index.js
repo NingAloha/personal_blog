@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { api } from '../utils/api'
 import { applySeo } from '../utils/seo'
+import { t } from '../i18n'
 
 const routes = [
   {
@@ -13,9 +14,7 @@ const routes = [
         component: () => import('../views/Home.vue'),
         meta: {
           seo: {
-            title: '首页',
-            description: 'NingAloha 的个人站点，记录项目、文学随笔与技术博客。',
-            path: '/',
+            key: 'home',
           },
         },
       },
@@ -25,9 +24,7 @@ const routes = [
         component: () => import('../views/ProjectList.vue'),
         meta: {
           seo: {
-            title: '项目',
-            description: '项目列表：正在做和做过的工程项目。',
-            path: '/projects',
+            key: 'projects',
           },
         },
       },
@@ -38,9 +35,7 @@ const routes = [
         component: () => import('../views/EssayList.vue'),
         meta: {
           seo: {
-            title: '文学随笔',
-            description: '文学随笔与生活思考。',
-            path: '/essays',
+            key: 'essays',
           },
         },
       },
@@ -51,9 +46,7 @@ const routes = [
         component: () => import('../views/TechBlogList.vue'),
         meta: {
           seo: {
-            title: '技术博客',
-            description: '开发实践、技术思考与踩坑复盘。',
-            path: '/tech-blogs',
+            key: 'techBlogs',
           },
         },
       },
@@ -65,8 +58,7 @@ const routes = [
     component: () => import('../views/NotFound.vue'),
     meta: {
       seo: {
-        title: '页面未找到',
-        description: '你访问的页面不存在。',
+        key: 'notFound',
       },
     },
   },
@@ -78,10 +70,18 @@ const router = createRouter({
   scrollBehavior: () => ({ top: 0 }),
 })
 
+function applyRouteSeo(to) {
+  const key = to?.meta?.seo?.key
+  if (!key) return
+  applySeo({
+    title: t(`seo.${key}.title`),
+    description: t(`seo.${key}.description`),
+    path: to.fullPath,
+  })
+}
+
 router.afterEach((to) => {
-  if (to.meta?.seo) {
-    applySeo({ ...to.meta.seo, path: to.fullPath })
-  }
+  applyRouteSeo(to)
 
   const key = 'site_visit_tracked'
   if (sessionStorage.getItem(key)) return
@@ -96,5 +96,11 @@ router.afterEach((to) => {
     sessionStorage.removeItem(key)
   })
 })
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('locale-changed', () => {
+    applyRouteSeo(router.currentRoute.value)
+  })
+}
 
 export default router

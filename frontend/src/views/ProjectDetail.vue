@@ -1,8 +1,8 @@
 <template>
-  <div v-if="loading" class="loading">加载中...</div>
+  <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
   <div v-else-if="project">
     <p class="breadcrumb">
-      <router-link to="/projects">项目</router-link>
+      <router-link to="/projects">{{ t('nav.projects') }}</router-link>
       <span> › </span>
       <span>{{ project.title }}</span>
     </p>
@@ -10,14 +10,14 @@
     <article>
       <!-- ── 标题 ── -->
       <h1 class="wiki-title">{{ project.title }}</h1>
-      <p class="meta">阅读 {{ views }} 次</p>
+      <p class="meta">{{ t('common.views', { n: views }) }}</p>
 
       <!-- ── 正文 ── -->
       <div class="wiki-body" v-html="rendered" />
     </article>
   </div>
   <div v-else class="not-found">
-    <p>项目不存在。<router-link to="/projects">← 返回项目列表</router-link></p>
+    <p>{{ t('detail.projectMissing') }} <router-link to="/projects">{{ t('detail.backProjects') }}</router-link></p>
   </div>
 </template>
 
@@ -27,6 +27,7 @@ import { useRoute } from 'vue-router'
 import { api } from '../utils/api'
 import { renderMarkdown } from '../utils/markdown'
 import { applySeo, buildArticleJsonLd } from '../utils/seo'
+import { locale, t } from '../i18n'
 
 const route = useRoute()
 const project = ref(null)
@@ -48,20 +49,22 @@ async function load(slug) {
   try {
     project.value = await api.getProject(slug)
     const path = `/projects/${slug}`
-    applySeo({
-      title: project.value.title,
-      description: project.value.summary,
-      path,
-      type: 'article',
-      jsonLd: buildArticleJsonLd({
+    const applyArticleSeo = () =>
+      applySeo({
         title: project.value.title,
-        summary: project.value.summary,
+        description: project.value.summary,
         path,
-        datePublished: project.value.startDate,
-        tags: project.value.tech,
-        articleType: 'Article',
-      }),
-    })
+        type: 'article',
+        jsonLd: buildArticleJsonLd({
+          title: project.value.title,
+          summary: project.value.summary,
+          path,
+          datePublished: project.value.startDate,
+          tags: project.value.tech,
+          articleType: 'Article',
+        }),
+      })
+    applyArticleSeo()
     scheduleLowPriority(async () => {
       try {
         await api.trackArticleVisit(slug)
@@ -82,6 +85,25 @@ const rendered = computed(() => renderMarkdown(project.value?.content))
 
 onMounted(() => load(route.params.slug))
 watch(() => route.params.slug, (slug) => slug && load(slug))
+watch(locale, () => {
+  const slug = route.params.slug
+  if (!slug || !project.value) return
+  const path = `/projects/${slug}`
+  applySeo({
+    title: project.value.title,
+    description: project.value.summary,
+    path,
+    type: 'article',
+    jsonLd: buildArticleJsonLd({
+      title: project.value.title,
+      summary: project.value.summary,
+      path,
+      datePublished: project.value.startDate,
+      tags: project.value.tech,
+      articleType: 'Article',
+    }),
+  })
+})
 </script>
 
 <style scoped>

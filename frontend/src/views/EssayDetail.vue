@@ -1,22 +1,22 @@
 <template>
-  <div v-if="loading" class="loading">加载中...</div>
+  <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
   <div v-else-if="essay">
     <p class="breadcrumb">
-      <router-link to="/essays">文学随笔</router-link>
+      <router-link to="/essays">{{ t('nav.essays') }}</router-link>
       <span> › </span>
       <span>{{ essay.title }}</span>
     </p>
 
     <article>
       <h1 class="wiki-title">{{ essay.title }}</h1>
-      <p class="meta">阅读 {{ views }} 次</p>
+      <p class="meta">{{ t('common.views', { n: views }) }}</p>
 
       <!-- ── 正文 ── -->
       <div class="wiki-body" v-html="rendered" />
     </article>
   </div>
   <div v-else class="not-found">
-    <p>随笔不存在。<router-link to="/essays">← 返回随笔列表</router-link></p>
+    <p>{{ t('detail.essayMissing') }} <router-link to="/essays">{{ t('detail.backEssays') }}</router-link></p>
   </div>
 </template>
 
@@ -26,6 +26,7 @@ import { useRoute } from 'vue-router'
 import { api } from '../utils/api'
 import { renderMarkdown } from '../utils/markdown'
 import { applySeo, buildArticleJsonLd } from '../utils/seo'
+import { locale, t } from '../i18n'
 
 const route = useRoute()
 const essay = ref(null)
@@ -81,6 +82,25 @@ const rendered = computed(() => renderMarkdown(essay.value?.content))
 
 onMounted(() => load(route.params.slug))
 watch(() => route.params.slug, (slug) => slug && load(slug))
+watch(locale, () => {
+  const slug = route.params.slug
+  if (!slug || !essay.value) return
+  const path = `/essays/${slug}`
+  applySeo({
+    title: essay.value.title,
+    description: essay.value.summary,
+    path,
+    type: 'article',
+    jsonLd: buildArticleJsonLd({
+      title: essay.value.title,
+      summary: essay.value.summary,
+      path,
+      datePublished: essay.value.date,
+      tags: essay.value.tags,
+      articleType: 'Article',
+    }),
+  })
+})
 </script>
 
 <style scoped>

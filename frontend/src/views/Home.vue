@@ -2,7 +2,7 @@
   <article class="home-article">
 
     <!-- ── 页面标题 ── -->
-    <h1 class="wiki-title">关于我</h1>
+    <h1 class="wiki-title">{{ t('home.title') }}</h1>
 
     <!-- ── 名片 Infobox（右浮动） ── -->
     <aside class="infobox">
@@ -19,13 +19,13 @@
       </div>
       <table class="infobox-table">
         <tbody>
-          <tr><th>可以叫我</th><td>NingAloha(寧中亙)</td></tr>
-          <tr><th>我也许是</th><td>开发者/随笔作者/吉他手/摄影师</td></tr>
-          <tr><th>我来自于</th><td>中国·汕头</td></tr>
-          <tr><th>项目做了</th><td>{{ projectCount }}个</td></tr>
-          <tr><th>随笔写了</th><td>{{ essayCount }}篇</td></tr>
-          <tr><th>技术博客</th><td>{{ techBlogCount }}篇</td></tr>
-          <tr><th>网站访问</th><td>{{ siteVisits }}次</td></tr>
+          <tr><th>{{ t('home.infobox.callMe') }}</th><td>{{ t('home.infobox.nameValue') }}</td></tr>
+          <tr><th>{{ t('home.infobox.iMayBe') }}</th><td>{{ t('home.infobox.rolesValue') }}</td></tr>
+          <tr><th>{{ t('home.infobox.from') }}</th><td>{{ t('home.infobox.fromValue') }}</td></tr>
+          <tr><th>{{ t('home.infobox.projectCount') }}</th><td>{{ t('home.infobox.unitProject', { n: projectCount }) }}</td></tr>
+          <tr><th>{{ t('home.infobox.essayCount') }}</th><td>{{ t('home.infobox.unitEssay', { n: essayCount }) }}</td></tr>
+          <tr><th>{{ t('home.infobox.techBlogCount') }}</th><td>{{ t('home.infobox.unitTechBlog', { n: techBlogCount }) }}</td></tr>
+          <tr><th>{{ t('home.infobox.siteVisits') }}</th><td>{{ t('home.infobox.unitVisits', { n: siteVisits }) }}</td></tr>
         </tbody>
       </table>
       <div class="infobox-links">
@@ -36,16 +36,14 @@
 
     <!-- ── 自我介绍 ── -->
     <p>
-      你好，这里是我的个人主页。我喜欢写点代码，也喜欢写文章，时不时也会听听歌，练练琴。
-      这个网站受 Wikipedia 排版风格的启发——不炫技，只是把东西放在该放的地方。
+      {{ t('home.intro1') }}
     </p>
     <p>
-      上边（或者说，这段文字）是关于我的介绍。
-      不过我暂时还没想好写些什么，就先这么多吧。
+      {{ t('home.intro2') }}
     </p>
 
     <!-- ── 在做的项目 ── -->
-    <h2 class="wiki-section">正在做的项目</h2>
+    <h2 class="wiki-section">{{ t('home.doingProjects') }}</h2>
     <template v-if="featuredProject">
       <div class="featured-card" @click="$router.push(`/projects/${featuredProject.slug}`)">
         <div class="featured-card-header">
@@ -57,17 +55,17 @@
           <span v-for="t in featuredProject.tech" :key="t" class="tech-tag">{{ t }}</span>
         </div>
         <router-link :to="`/projects/${featuredProject.slug}`" class="featured-more">
-          阅读更多 →
+          {{ t('common.readMore') }}
         </router-link>
       </div>
     </template>
-    <div v-else class="featured-card featured-skeleton">项目加载中...</div>
+    <div v-else class="featured-card featured-skeleton">{{ t('home.projectsLoading') }}</div>
     <p class="section-seeall">
-      <router-link to="/projects">查看所有项目</router-link>
+      <router-link to="/projects">{{ t('home.seeAllProjects') }}</router-link>
     </p>
 
     <!-- ── 文学随笔 ── -->
-    <h2 class="wiki-section">文学随笔</h2>
+    <h2 class="wiki-section">{{ t('nav.essays') }}</h2>
     <template v-if="featuredEssay">
       <div class="featured-card" @click="$router.push(`/essays/${featuredEssay.slug}`)">
         <div class="featured-card-header">
@@ -76,17 +74,17 @@
         </div>
         <p class="featured-card-summary">{{ featuredEssay.summary }}</p>
         <router-link :to="`/essays/${featuredEssay.slug}`" class="featured-more">
-          阅读更多 →
+          {{ t('common.readMore') }}
         </router-link>
       </div>
     </template>
-    <div v-else class="featured-card featured-skeleton">随笔加载中...</div>
+    <div v-else class="featured-card featured-skeleton">{{ t('home.essaysLoading') }}</div>
     <p class="section-seeall">
-      <router-link to="/essays">查看所有随笔</router-link>
+      <router-link to="/essays">{{ t('home.seeAllEssays') }}</router-link>
     </p>
 
     <!-- ── 技术博客 ── -->
-    <h2 class="wiki-section">技术博客</h2>
+    <h2 class="wiki-section">{{ t('nav.techBlogs') }}</h2>
     <template v-if="featuredTechBlog">
       <div class="featured-card" @click="$router.push(`/tech-blogs/${featuredTechBlog.slug}`)">
         <div class="featured-card-header">
@@ -95,13 +93,13 @@
         </div>
         <p class="featured-card-summary">{{ featuredTechBlog.summary }}</p>
         <router-link :to="`/tech-blogs/${featuredTechBlog.slug}`" class="featured-more">
-          阅读更多 →
+          {{ t('common.readMore') }}
         </router-link>
       </div>
     </template>
-    <div v-else class="featured-card featured-skeleton">技术博客加载中...</div>
+    <div v-else class="featured-card featured-skeleton">{{ t('home.techBlogsLoading') }}</div>
     <p class="section-seeall">
-      <router-link to="/tech-blogs">查看所有技术博客</router-link>
+      <router-link to="/tech-blogs">{{ t('home.seeAllTechBlogs') }}</router-link>
     </p>
 
   </article>
@@ -110,6 +108,7 @@
 <script setup>
 import { ref, onBeforeUnmount, onMounted } from 'vue'
 import { api } from '../utils/api'
+import { t } from '../i18n'
 
 const featuredProject = ref(null)
 const featuredEssay = ref(null)

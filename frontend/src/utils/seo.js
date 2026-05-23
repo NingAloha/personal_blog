@@ -1,6 +1,14 @@
-const SITE_NAME = '寧中亙的个人主页'
+import { t } from '../i18n'
+
 const SITE_URL = 'https://ningaloha.com'
-const DEFAULT_DESCRIPTION = 'NingAloha 的个人站点，包含项目、文学随笔与技术博客。'
+
+function getSiteName() {
+  return t('site.name')
+}
+
+function getDefaultDescription() {
+  return t('site.description')
+}
 
 function upsertMeta(selector, attributes) {
   let el = document.head.querySelector(selector)
@@ -41,7 +49,7 @@ function setJsonLd(data) {
 }
 
 function truncate(text, max = 160) {
-  if (!text) return DEFAULT_DESCRIPTION
+  if (!text) return getDefaultDescription()
   return text.length > max ? `${text.slice(0, max - 1)}…` : text
 }
 
@@ -56,7 +64,8 @@ export function buildAbsoluteUrl(path = '/') {
 }
 
 export function applySeo({ title, description, path = '/', type = 'website', image, jsonLd }) {
-  const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME
+  const siteName = getSiteName()
+  const fullTitle = title ? `${title} | ${siteName}` : siteName
   const canonical = buildAbsoluteUrl(path)
   const desc = truncate(description)
   const ogImage = image || buildAbsoluteUrl('/avatar.jpg')
@@ -65,7 +74,7 @@ export function applySeo({ title, description, path = '/', type = 'website', ima
   setCanonical(canonical)
 
   upsertMeta('meta[name="description"]', { name: 'description', content: desc })
-  upsertMeta('meta[property="og:site_name"]', { property: 'og:site_name', content: SITE_NAME })
+  upsertMeta('meta[property="og:site_name"]', { property: 'og:site_name', content: siteName })
   upsertMeta('meta[property="og:title"]', { property: 'og:title', content: fullTitle })
   upsertMeta('meta[property="og:description"]', { property: 'og:description', content: desc })
   upsertMeta('meta[property="og:type"]', { property: 'og:type', content: type })
@@ -105,6 +114,10 @@ export function buildArticleJsonLd({ title, summary, path, datePublished, tags, 
 }
 
 export const seoDefaults = {
-  siteName: SITE_NAME,
-  defaultDescription: DEFAULT_DESCRIPTION,
+  get siteName() {
+    return getSiteName()
+  },
+  get defaultDescription() {
+    return getDefaultDescription()
+  },
 }
