@@ -1,3 +1,11 @@
+.DS_Store
+
+# runtime / secrets
 backend/.env
-backend/package.json
 backend/data/stats.json
+
+# dependencies
+**/node_modules/
+
+# builds
+frontend/dist/
