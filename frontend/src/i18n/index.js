@@ -210,9 +210,9 @@ const messages = {
         unitVisits: '{n}',
       },
       intro1:
-        "Hi — welcome to my personal site. I write code and I write words. Sometimes I listen to music and practice guitar. The layout is inspired by Wikipedia: minimal, calm, and putting things where they belong.",
+        "Hi — welcome to my personal site. I write code and I write words. Sometimes I listen to music and practice guitar. The layout is inspired by Wikipedia: minimal, calm, and focused on putting things where they belong.",
       intro2:
-        "That's the short version of me (or at least of this page). I haven't decided what else to write here yet, so I'll keep it simple for now.",
+        "That’s the short version of me (or at least of this page). I haven’t decided what else to put here yet, so I’ll keep it simple for now.",
       doingProjects: 'Active projects',
       projectsLoading: 'Loading projects...',
       seeAllProjects: 'See all projects',
