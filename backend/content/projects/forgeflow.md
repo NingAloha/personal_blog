@@ -217,3 +217,8 @@ ForgeFlow 当前阶段重点是 requirements 层的稳定化：
 ## 项目地址
 
 [https://github.com/NingAloha/ForgeFlow](https://github.com/NingAloha/ForgeFlow)
+
+## 开发记录
+
+- [Authority 比 Abstraction 更重要：ForgeFlow 的一次语义收缩](/tech-blogs/authority-over-abstraction)
+- [从 Engineering State 到 Requirements Sieve：ForgeFlow 的第二次语义收缩](/tech-blogs/requirements-sieve)

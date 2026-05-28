@@ -437,3 +437,8 @@ ForgeFlow 现在仍然很早。
 
 这可能比多写几个 agent 慢得多。  
 但对长周期项目来说，慢一点的语义稳定，可能比快一点的伪完成更重要。
+
+## 相关阅读
+
+- [Authority 比 Abstraction 更重要：ForgeFlow 的一次语义收缩](/tech-blogs/authority-over-abstraction)
+- [ForgeFlow 项目页](/projects/forgeflow)
