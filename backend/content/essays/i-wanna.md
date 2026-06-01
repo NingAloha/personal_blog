@@ -3,7 +3,7 @@ title: 我多想,没奈何
 summary: 我多想,没奈何......
 tags: ["现代诗"]
 date: "2026-6-2"
-featured: false
+featured: true
 ---
 
 ## 我多想
