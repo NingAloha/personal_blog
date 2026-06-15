@@ -59,7 +59,9 @@ personal_blog/
 
 - 内容：`backend/content/**.md`（front matter + 正文）
 - 主题：浅色/黑夜切换（本地持久化）
-- 语言：UI 结构支持中/英切换（浏览器默认 + 本地持久化）；`backend/content/` 不做翻译
+- 语言：UI 结构支持中/英切换（浏览器默认 + 本地持久化）
+- 技术博客：支持内容级中英文切换；中文读取 `.md`，英文优先读取同名 `.en.md`，缺失时自动回退中文
+- 技术博客聚合：`slug.md` 与 `slug.en.md` 视为同一篇文章，列表、详情路由与阅读统计按基础 slug 去重
 - SEO：title/description/canonical/OG/Twitter Card + JSON-LD（Article/BlogPosting）
 - 构建：自动生成 `frontend/public/sitemap.xml` + 预渲染静态路由到 `frontend/dist/`
 - 统计：站点访问量 + 文章阅读量（可选；通过 `DATA_DIR` 做持久化）
@@ -67,6 +69,8 @@ personal_blog/
 ## 内容维护（写作/更新）
 
 新增/修改内容只需要编辑 `backend/content/` 下的 Markdown；后端按请求实时读取，一般不需要重启。
+
+技术博客如果需要补英文内容，可在同目录新增同名 `.en.md` 文件，例如 `my-tech-post.md` 对应 `my-tech-post.en.md`；两者会被视为同一篇文章。
 
 ---
 

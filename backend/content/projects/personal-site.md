@@ -1,6 +1,6 @@
 ---
 title: 个人主页
-summary: 你正在浏览的这个站点。基于前后端分离与 Markdown 内容目录，实现 Wikipedia 风格个人站；补齐主题/语言切换、SEO、sitemap 与静态预渲染，并持续优化 Lighthouse 性能（移动端 99，桌面端文章页约 77）。
+summary: 你正在浏览的这个站点。基于前后端分离与 Markdown 内容目录，实现 Wikipedia 风格个人站；补齐主题/语言切换、技术博客中英文内容回退、SEO、sitemap 与静态预渲染，并持续优化 Lighthouse 性能（移动端 99，桌面端文章页约 77）。
 tech: ["Vue 3", "Vite", "Vue Router", "Node.js", "Express", "markdown-it", "gray-matter", "Nginx", "systemd", "Theme System", "i18n", "SEO Meta", "JSON-LD", "Sitemap", "Prerender", "Cloudflare"]
 startDate: "2026-04"
 status: 进行中
@@ -50,6 +50,8 @@ featured: false
 
 - 前端已支持主题切换（浅色/黑夜）与语言切换（中/英），并进行本地持久化
 - 内容继续采用 Markdown 目录维护，后端按请求实时读取
+- 技术博客已支持内容级中英文切换：中文直接读取 `.md`，英文优先读取 `.en.md`，缺失时自动回退中文版本
+- 技术博客中英文同名稿件按同一篇文章聚合，列表展示、详情页路由与阅读统计不再重复计算
 - 仓库对外开源，但文章内容采用独立版权声明，见仓库根目录 `CONTENT_COPYRIGHT.md`
 - 已接入动态 SEO 元信息（title / description / canonical / Open Graph / Twitter Card）
 - 详情页已接入结构化数据（JSON-LD，Article/BlogPosting）
