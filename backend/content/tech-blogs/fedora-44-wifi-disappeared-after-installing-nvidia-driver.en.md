@@ -336,36 +336,49 @@ The Wi-Fi card was simply the first piece of hardware to expose the problem.
 
 Later, the NVIDIA driver and the graphical environment were affected as well.
 
-## Conclusion
+## Some Reflections
 
-The biggest takeaway from this troubleshooting session was not just that I fixed Wi-Fi.
+Looking back at the whole troubleshooting process, the most interesting part is that from beginning to end, I was fighting problems that did not actually exist.
 
-It was that this experience confirmed a practical rule once again:
+When Wi-Fi disappeared, I suspected RTL8852CE.
 
-> When multiple pieces of hardware that seem unrelated start failing at the same time, do not rush to suspect each driver one by one.
+When windows would not open, I suspected the NVIDIA driver.
 
-What is often more important to check first is whether the shared lower-level dependencies are intact:
+When the issue appeared after switching to Linux 7.0, I started suspecting compatibility problems in the new kernel.
 
-```text
-Kernel
-Driver modules
-System packages
-```
+All of those inferences were reasonable, and at times they even seemed to be supported by the symptoms.
 
-Looking back, I successively suspected:
+But in the end, what the investigation showed was this:
 
 ```text
-NVIDIA driver
-RTL8852CE
-Linux 7.0
+RTL8852CE was not the problem
+The NVIDIA driver was not the problem
+Linux 7.0 was not the problem either
 ```
 
-But in the end, the real problem was simply:
+What was actually abnormal was a lower-level state that was much harder to observe directly: an incompletely installed Linux kernel.
+
+That reminded me of something important about complex systems: what we see first is usually not the problem itself, but the result produced by the problem.
+
+Because the result is visible while the underlying state is usually invisible, people naturally treat the symptom as the cause.
+
+So:
 
 ```text
-An incompletely installed Linux kernel
+Wi-Fi disappears
+≠ the Wi-Fi card is broken
+
+Windows do not open
+≠ the GPU is broken
+
+Driver loading fails
+≠ the driver itself is broken
 ```
 
-A system being able to boot does not necessarily mean the kernel environment is complete, and a driver failing to work does not necessarily mean the driver is missing.
+Very often, these are only traces left by the same lower-level abnormality in different places.
 
-Sometimes the real issue is just that one critical package was never installed correctly.
+Perhaps the biggest gain from this troubleshooting session was not that I fixed Wi-Fi, but that I was reminded of this once again:
+
+> When multiple components fail at the same time, it is often more useful to look for what they all depend on than to suspect each component one by one.
+
+Because that is often where the real problem is hiding.
