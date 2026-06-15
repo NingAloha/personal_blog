@@ -12,13 +12,19 @@ async function post(path) {
   return res.json()
 }
 
+function withLang(path, lang) {
+  if (!lang) return path
+  const separator = path.includes('?') ? '&' : '?'
+  return `${path}${separator}lang=${encodeURIComponent(lang)}`
+}
+
 export const api = {
   getProjects: () => get('/projects'),
   getProject: (slug) => get(`/projects/${slug}`),
   getEssays: () => get('/essays'),
   getEssay: (slug) => get(`/essays/${slug}`),
-  getTechBlogs: () => get('/tech-blogs'),
-  getTechBlog: (slug) => get(`/tech-blogs/${slug}`),
+  getTechBlogs: (lang) => get(withLang('/tech-blogs', lang)),
+  getTechBlog: (slug, lang) => get(withLang(`/tech-blogs/${slug}`, lang)),
   getSiteStats: () => get('/stats/site'),
   trackSiteVisit: () => post('/stats/site/visit'),
   getArticleStats: (slug) => get(`/stats/article/${slug}`),

@@ -30,16 +30,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { api } from '../utils/api'
-import { t } from '../i18n'
+import { locale, t } from '../i18n'
 
 const posts = ref([])
 const loading = ref(true)
-onMounted(async () => {
-  posts.value = await api.getTechBlogs()
-  loading.value = false
-})
+
+async function load() {
+  loading.value = true
+  try {
+    posts.value = await api.getTechBlogs(locale.value)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(load)
+watch(locale, load)
 </script>
 
 <style scoped>

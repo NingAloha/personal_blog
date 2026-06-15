@@ -57,6 +57,61 @@ function shouldCountVisit(req, scope) {
   return !lastSeen || now - lastSeen > VISIT_DEDUPE_WINDOW_MS
 }
 
+function normalizeLocale(value) {
+  if (typeof value !== 'string') return 'zh'
+  const lower = value.toLowerCase()
+  return lower.startsWith('en') ? 'en' : 'zh'
+}
+
+function splitLocalizedMarkdownName(file) {
+  const stem = basename(file, '.md')
+  if (stem.endsWith('.en')) {
+    return { slug: stem.slice(0, -3), locale: 'en' }
+  }
+  return { slug: stem, locale: 'zh' }
+}
+
+function sortItems(a, b) {
+  if (a.featured && !b.featured) return -1
+  if (!a.featured && b.featured) return 1
+  const da = a.date || a.startDate || ''
+  const db = b.date || b.startDate || ''
+  return db.localeCompare(da)
+}
+
+function readLocalizedTechBlogs(locale = 'zh') {
+  const dir = join(CONTENT_DIR, 'tech-blogs')
+  const groups = new Map()
+
+  for (const file of readdirSync(dir).filter((f) => f.endsWith('.md'))) {
+    const { slug, locale: fileLocale } = splitLocalizedMarkdownName(file)
+    const raw = readFileSync(join(dir, file), 'utf-8')
+    const { data, content } = matter(raw)
+    const variants = groups.get(slug) || {}
+    variants[fileLocale] = { slug, ...data, content }
+    groups.set(slug, variants)
+  }
+
+  return Array.from(groups.entries())
+    .map(([slug, variants]) => {
+      const chosen = locale === 'en' ? (variants.en || variants.zh) : variants.zh
+      if (!chosen) return null
+      return { slug, ...chosen }
+    })
+    .filter(Boolean)
+    .sort(sortItems)
+}
+
+function readLocalizedTechBlog(slug, locale = 'zh') {
+  const normalizedSlug = splitLocalizedMarkdownName(`${slug}.md`).slug
+  const items = readLocalizedTechBlogs(locale)
+  const matched = items.find((item) => item.slug === normalizedSlug)
+  if (!matched) {
+    throw new Error('Not found')
+  }
+  return matched
+}
+
 // ── 通用：读取某类内容的所有文件 ──
 function readAllItems(type) {
   const dir = join(CONTENT_DIR, type)
@@ -68,14 +123,7 @@ function readAllItems(type) {
       const { data } = matter(raw)
       return { slug, ...data }
     })
-    .sort((a, b) => {
-      // 优先置顶 featured，其次按日期/startDate 倒序
-      if (a.featured && !b.featured) return -1
-      if (!a.featured && b.featured) return 1
-      const da = a.date || a.startDate || ''
-      const db = b.date || b.startDate || ''
-      return db.localeCompare(da)
-    })
+    .sort(sortItems)
 }
 
 // ── 通用：读取单个文件（包含 content） ──
@@ -121,9 +169,9 @@ app.get('/api/essays/:slug', (req, res) => {
 })
 
 // ── 技术博客 ──
-app.get('/api/tech-blogs', (_req, res) => {
+app.get('/api/tech-blogs', (req, res) => {
   try {
-    res.json(readAllItems('tech-blogs'))
+    res.json(readLocalizedTechBlogs(normalizeLocale(req.query.lang)))
   } catch (e) {
     res.status(500).json({ error: e.message })
   }
@@ -131,7 +179,7 @@ app.get('/api/tech-blogs', (_req, res) => {
 
 app.get('/api/tech-blogs/:slug', (req, res) => {
   try {
-    res.json(readItem('tech-blogs', req.params.slug))
+    res.json(readLocalizedTechBlog(req.params.slug, normalizeLocale(req.query.lang)))
   } catch {
     res.status(404).json({ error: 'Not found' })
   }
@@ -165,7 +213,7 @@ app.post('/api/stats/site/visit', (req, res) => {
 app.get('/api/stats/article/:slug', (req, res) => {
   try {
     const stats = readStats()
-    const slug = req.params.slug
+    const slug = splitLocalizedMarkdownName(`${req.params.slug}.md`).slug
     res.set('Cache-Control', 'no-store')
     res.json({ slug, views: stats.articleViews?.[slug] || 0 })
   } catch (e) {
@@ -176,7 +224,7 @@ app.get('/api/stats/article/:slug', (req, res) => {
 app.post('/api/stats/article/:slug/visit', (req, res) => {
   try {
     const stats = readStats()
-    const slug = req.params.slug
+    const slug = splitLocalizedMarkdownName(`${req.params.slug}.md`).slug
     let counted = false
     if (shouldCountVisit(req, `article:${slug}`)) {
       stats.articleViews = stats.articleViews || {}

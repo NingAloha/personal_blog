@@ -44,8 +44,8 @@ async function load(slug) {
   loading.value = true
   notFound.value = false
   try {
-    post.value = await api.getTechBlog(slug)
-    const path = `/tech-blogs/${slug}`
+    post.value = await api.getTechBlog(slug, locale.value)
+    const path = `/tech-blogs/${post.value.slug}`
     applySeo({
       title: post.value.title,
       description: post.value.summary,
@@ -62,8 +62,8 @@ async function load(slug) {
     })
     scheduleLowPriority(async () => {
       try {
-        await api.trackArticleVisit(slug)
-        const stats = await api.getArticleStats(slug)
+        await api.trackArticleVisit(post.value.slug)
+        const stats = await api.getArticleStats(post.value.slug)
         views.value = stats.views || 0
       } catch {
         views.value = 0
@@ -82,22 +82,7 @@ onMounted(() => load(route.params.slug))
 watch(() => route.params.slug, (slug) => slug && load(slug))
 watch(locale, () => {
   const slug = route.params.slug
-  if (!slug || !post.value) return
-  const path = `/tech-blogs/${slug}`
-  applySeo({
-    title: post.value.title,
-    description: post.value.summary,
-    path,
-    type: 'article',
-    jsonLd: buildArticleJsonLd({
-      title: post.value.title,
-      summary: post.value.summary,
-      path,
-      datePublished: post.value.date,
-      tags: post.value.tags,
-      articleType: 'BlogPosting',
-    }),
-  })
+  if (slug) load(slug)
 })
 </script>
 

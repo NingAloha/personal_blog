@@ -106,9 +106,9 @@
 </template>
 
 <script setup>
-import { ref, onBeforeUnmount, onMounted } from 'vue'
+import { ref, onBeforeUnmount, onMounted, watch } from 'vue'
 import { api } from '../utils/api'
-import { t } from '../i18n'
+import { locale, t } from '../i18n'
 
 const featuredProject = ref(null)
 const featuredEssay = ref(null)
@@ -138,6 +138,14 @@ function handleSiteVisitsUpdated(e) {
   }
 }
 
+async function loadTechBlogs() {
+  try {
+    const techBlogs = await api.getTechBlogs(locale.value)
+    techBlogCount.value = techBlogs.length
+    featuredTechBlog.value = techBlogs.find((p) => p.featured) || techBlogs[0] || null
+  } catch {}
+}
+
 onMounted(async () => {
   trySetSiteVisitsFromStorage()
   window.addEventListener('site-visits-updated', handleSiteVisitsUpdated)
@@ -152,15 +160,14 @@ onMounted(async () => {
     featuredEssay.value = essays.find((e) => e.featured) || essays[0] || null
   }).catch(() => {})
 
-  api.getTechBlogs().then((techBlogs) => {
-    techBlogCount.value = techBlogs.length
-    featuredTechBlog.value = techBlogs.find((p) => p.featured) || techBlogs[0] || null
-  }).catch(() => {})
+  loadTechBlogs()
 
   api.getSiteStats().then((stats) => {
     siteVisits.value = stats.siteVisits || 0
   }).catch(() => {})
 })
+
+watch(locale, loadTechBlogs)
 
 onBeforeUnmount(() => {
   window.removeEventListener('site-visits-updated', handleSiteVisitsUpdated)
