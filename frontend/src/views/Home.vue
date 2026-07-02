@@ -45,7 +45,7 @@
     <!-- ── 在做的项目 ── -->
     <h2 class="wiki-section">{{ t('home.doingProjects') }}</h2>
     <template v-if="featuredProject">
-      <div class="featured-card" @click="$router.push(`/projects/${featuredProject.slug}`)">
+      <div class="featured-card" @click="$router.push(`/projects/${featuredProject.slug}/`)">
         <div class="featured-card-header">
           <span class="featured-card-title">{{ featuredProject.title }}</span>
           <span class="featured-card-status">{{ featuredProject.status }}</span>
@@ -54,52 +54,52 @@
         <div class="featured-card-tech">
           <span v-for="t in featuredProject.tech" :key="t" class="tech-tag">{{ t }}</span>
         </div>
-        <router-link :to="`/projects/${featuredProject.slug}`" class="featured-more">
+        <router-link :to="`/projects/${featuredProject.slug}/`" class="featured-more">
           {{ t('common.readMore') }}
         </router-link>
       </div>
     </template>
     <div v-else class="featured-card featured-skeleton">{{ t('home.projectsLoading') }}</div>
     <p class="section-seeall">
-      <router-link to="/projects">{{ t('home.seeAllProjects') }}</router-link>
+      <router-link to="/projects/">{{ t('home.seeAllProjects') }}</router-link>
     </p>
 
     <!-- ── 文学随笔 ── -->
     <h2 class="wiki-section">{{ t('nav.essays') }}</h2>
     <template v-if="featuredEssay">
-      <div class="featured-card" @click="$router.push(`/essays/${featuredEssay.slug}`)">
+      <div class="featured-card" @click="$router.push(`/essays/${featuredEssay.slug}/`)">
         <div class="featured-card-header">
           <span class="featured-card-title">{{ featuredEssay.title }}</span>
           <span class="featured-card-date">{{ featuredEssay.date }}</span>
         </div>
         <p class="featured-card-summary">{{ featuredEssay.summary }}</p>
-        <router-link :to="`/essays/${featuredEssay.slug}`" class="featured-more">
+        <router-link :to="`/essays/${featuredEssay.slug}/`" class="featured-more">
           {{ t('common.readMore') }}
         </router-link>
       </div>
     </template>
     <div v-else class="featured-card featured-skeleton">{{ t('home.essaysLoading') }}</div>
     <p class="section-seeall">
-      <router-link to="/essays">{{ t('home.seeAllEssays') }}</router-link>
+      <router-link to="/essays/">{{ t('home.seeAllEssays') }}</router-link>
     </p>
 
     <!-- ── 技术博客 ── -->
     <h2 class="wiki-section">{{ t('nav.techBlogs') }}</h2>
     <template v-if="featuredTechBlog">
-      <div class="featured-card" @click="$router.push(`/tech-blogs/${featuredTechBlog.slug}`)">
+      <div class="featured-card" @click="$router.push(`/tech-blogs/${featuredTechBlog.slug}/`)">
         <div class="featured-card-header">
           <span class="featured-card-title">{{ featuredTechBlog.title }}</span>
           <span class="featured-card-date">{{ featuredTechBlog.date }}</span>
         </div>
         <p class="featured-card-summary">{{ featuredTechBlog.summary }}</p>
-        <router-link :to="`/tech-blogs/${featuredTechBlog.slug}`" class="featured-more">
+        <router-link :to="`/tech-blogs/${featuredTechBlog.slug}/`" class="featured-more">
           {{ t('common.readMore') }}
         </router-link>
       </div>
     </template>
     <div v-else class="featured-card featured-skeleton">{{ t('home.techBlogsLoading') }}</div>
     <p class="section-seeall">
-      <router-link to="/tech-blogs">{{ t('home.seeAllTechBlogs') }}</router-link>
+      <router-link to="/tech-blogs/">{{ t('home.seeAllTechBlogs') }}</router-link>
     </p>
 
   </article>

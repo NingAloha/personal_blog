@@ -2,8 +2,8 @@ import { readdirSync, readFileSync, writeFileSync, mkdirSync } from 'fs'
 import { join, resolve, basename, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { renderMarkdown } from '../frontend/src/utils/markdown.js'
+import { buildAbsoluteUrl, normalizeSitePath } from '../frontend/src/utils/url.js'
 
-const SITE_URL = 'https://ningaloha.com'
 const SITE_NAME = '寧中亙的个人主页'
 const DEFAULT_DESCRIPTION = 'NingAloha 的个人站点，包含项目、文学随笔与技术博客。'
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
@@ -15,16 +15,6 @@ const TEMPLATE_PATH = join(DIST_ROOT, 'index.html')
 function truncate(text, max = 160) {
   if (!text) return DEFAULT_DESCRIPTION
   return text.length > max ? `${text.slice(0, max - 1)}…` : text
-}
-
-function normalizeCanonicalPath(path = '/') {
-  if (!path || path === '/') return '/'
-  if (path.endsWith('/')) return path
-  return `${path}/`
-}
-
-function buildAbsoluteUrl(path = '/') {
-  return new URL(normalizeCanonicalPath(path), SITE_URL).toString()
 }
 
 function parseValue(raw) {
@@ -118,17 +108,17 @@ function renderHome(projects, essays, techBlogs) {
   <h1 class="wiki-title">关于我</h1>
   <p>你好，这里是我的个人主页。我喜欢写点代码，也喜欢写文章。</p>
   <h2 class="wiki-section">正在做的项目</h2>
-  ${featuredProject ? `<p><a href="/projects/${featuredProject.slug}">${featuredProject.title}</a>：${featuredProject.summary || ''}</p>` : '<p>暂无项目。</p>'}
+  ${featuredProject ? `<p><a href="${normalizeSitePath(`/projects/${featuredProject.slug}`)}">${featuredProject.title}</a>：${featuredProject.summary || ''}</p>` : '<p>暂无项目。</p>'}
   <h2 class="wiki-section">文学随笔</h2>
-  ${featuredEssay ? `<p><a href="/essays/${featuredEssay.slug}">${featuredEssay.title}</a>：${featuredEssay.summary || ''}</p>` : '<p>暂无随笔。</p>'}
+  ${featuredEssay ? `<p><a href="${normalizeSitePath(`/essays/${featuredEssay.slug}`)}">${featuredEssay.title}</a>：${featuredEssay.summary || ''}</p>` : '<p>暂无随笔。</p>'}
   <h2 class="wiki-section">技术博客</h2>
-  ${featuredTechBlog ? `<p><a href="/tech-blogs/${featuredTechBlog.slug}">${featuredTechBlog.title}</a>：${featuredTechBlog.summary || ''}</p>` : '<p>暂无技术博客。</p>'}
+  ${featuredTechBlog ? `<p><a href="${normalizeSitePath(`/tech-blogs/${featuredTechBlog.slug}`)}">${featuredTechBlog.title}</a>：${featuredTechBlog.summary || ''}</p>` : '<p>暂无技术博客。</p>'}
 </article>`.trim()
 }
 
 function renderList(title, intro, basePath, items, dateKey) {
   const rows = items.map((item) => `<tr>
-  <td class="list-title-cell"><a href="${basePath}/${item.slug}">${item.title || item.slug}</a></td>
+  <td class="list-title-cell"><a href="${normalizeSitePath(`${basePath}/${item.slug}`)}">${item.title || item.slug}</a></td>
   <td class="list-summary-cell">${item.summary || ''}</td>
   <td class="list-date-cell">${item[dateKey] || ''}</td>
 </tr>`).join('\n')
@@ -147,7 +137,7 @@ function renderList(title, intro, basePath, items, dateKey) {
 function renderDetail(item, sectionTitle, basePath) {
   return `
 <article>
-  <p class="breadcrumb"><a href="${basePath}">${sectionTitle}</a> › <span>${item.title || item.slug}</span></p>
+  <p class="breadcrumb"><a href="${normalizeSitePath(basePath)}">${sectionTitle}</a> › <span>${item.title || item.slug}</span></p>
   <h1 class="wiki-title">${item.title || item.slug}</h1>
   <div class="wiki-body">${renderMarkdown(item.content || '')}</div>
 </article>`.trim()

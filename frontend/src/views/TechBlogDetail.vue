@@ -2,7 +2,7 @@
   <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
   <div v-else-if="post">
     <p class="breadcrumb">
-      <router-link to="/tech-blogs">{{ t('nav.techBlogs') }}</router-link>
+      <router-link to="/tech-blogs/">{{ t('nav.techBlogs') }}</router-link>
       <span> › </span>
       <span>{{ post.title }}</span>
     </p>
@@ -14,7 +14,7 @@
     </article>
   </div>
   <div v-else class="not-found">
-    <p>{{ t('detail.postMissing') }} <router-link to="/tech-blogs">{{ t('detail.backTechBlogs') }}</router-link></p>
+    <p>{{ t('detail.postMissing') }} <router-link to="/tech-blogs/">{{ t('detail.backTechBlogs') }}</router-link></p>
   </div>
 </template>
 

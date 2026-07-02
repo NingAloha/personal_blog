@@ -5,9 +5,9 @@
         <router-link class="wiki-logo" to="/">{{ t('site.name') }}</router-link>
         <nav class="wiki-nav">
           <router-link to="/">{{ t('nav.home') }}</router-link>
-          <router-link to="/projects">{{ t('nav.projects') }}</router-link>
-          <router-link to="/essays">{{ t('nav.essays') }}</router-link>
-          <router-link to="/tech-blogs">{{ t('nav.techBlogs') }}</router-link>
+          <router-link to="/projects/">{{ t('nav.projects') }}</router-link>
+          <router-link to="/essays/">{{ t('nav.essays') }}</router-link>
+          <router-link to="/tech-blogs/">{{ t('nav.techBlogs') }}</router-link>
         </nav>
         <div class="header-actions">
           <button class="theme-toggle" type="button" @click="toggleTheme">

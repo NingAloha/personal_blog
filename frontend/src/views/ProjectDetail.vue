@@ -2,7 +2,7 @@
   <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
   <div v-else-if="project">
     <p class="breadcrumb">
-      <router-link to="/projects">{{ t('nav.projects') }}</router-link>
+      <router-link to="/projects/">{{ t('nav.projects') }}</router-link>
       <span> › </span>
       <span>{{ project.title }}</span>
     </p>
@@ -17,7 +17,7 @@
     </article>
   </div>
   <div v-else class="not-found">
-    <p>{{ t('detail.projectMissing') }} <router-link to="/projects">{{ t('detail.backProjects') }}</router-link></p>
+    <p>{{ t('detail.projectMissing') }} <router-link to="/projects/">{{ t('detail.backProjects') }}</router-link></p>
   </div>
 </template>
 

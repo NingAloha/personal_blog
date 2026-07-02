@@ -16,7 +16,7 @@
       <tbody>
         <tr v-for="e in essays" :key="e.slug">
           <td class="list-title-cell">
-            <router-link :to="`/essays/${e.slug}`">{{ e.title }}</router-link>
+            <router-link :to="`/essays/${e.slug}/`">{{ e.title }}</router-link>
           </td>
           <td class="list-summary-cell">{{ e.summary }}</td>
           <td>

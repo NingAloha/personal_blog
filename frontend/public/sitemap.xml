@@ -6,76 +6,100 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://ningaloha.com/projects</loc>
+    <loc>https://ningaloha.com/projects/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ningaloha.com/essays</loc>
+    <loc>https://ningaloha.com/essays/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ningaloha.com/tech-blogs</loc>
+    <loc>https://ningaloha.com/tech-blogs/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ningaloha.com/projects/bootoo</loc>
+    <loc>https://ningaloha.com/projects/bootoo/</loc>
     <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ningaloha.com/projects/forgeflow</loc>
+    <loc>https://ningaloha.com/projects/forgeflow/</loc>
     <lastmod>2026-05-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ningaloha.com/projects/personal-site</loc>
+    <loc>https://ningaloha.com/projects/personal-site/</loc>
     <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ningaloha.com/essays/nanjing-night</loc>
+    <loc>https://ningaloha.com/essays/i-wanna/</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ningaloha.com/essays/nanjing-night/</loc>
     <lastmod>2024-11-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ningaloha.com/essays/on-beginning</loc>
+    <loc>https://ningaloha.com/essays/on-beginning/</loc>
     <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ningaloha.com/essays/on-simplicity</loc>
+    <loc>https://ningaloha.com/essays/on-simplicity/</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ningaloha.com/essays/story-of-langzi</loc>
+    <loc>https://ningaloha.com/essays/story-of-langzi/</loc>
     <lastmod>2025-05-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ningaloha.com/tech-blogs/authority-over-abstraction</loc>
+    <loc>https://ningaloha.com/tech-blogs/authority-over-abstraction/</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ningaloha.com/tech-blogs/multi-hop</loc>
+    <loc>https://ningaloha.com/tech-blogs/fedora-44-wifi-disappeared-after-installing-nvidia-driver.en/</loc>
+    <lastmod>2026-07-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ningaloha.com/tech-blogs/fedora-44-wifi-disappeared-after-installing-nvidia-driver/</loc>
+    <lastmod>2026-07-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ningaloha.com/tech-blogs/multi-hop/</loc>
     <lastmod>2026-05-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ningaloha.com/tech-blogs/right-place</loc>
+    <loc>https://ningaloha.com/tech-blogs/requirements-sieve/</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ningaloha.com/tech-blogs/right-place/</loc>
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>

@@ -1,6 +1,5 @@
 import { t } from '../i18n'
-
-const SITE_URL = 'https://ningaloha.com'
+import { buildAbsoluteUrl } from './url'
 
 function getSiteName() {
   return t('site.name')
@@ -51,16 +50,6 @@ function setJsonLd(data) {
 function truncate(text, max = 160) {
   if (!text) return getDefaultDescription()
   return text.length > max ? `${text.slice(0, max - 1)}…` : text
-}
-
-function normalizeCanonicalPath(path = '/') {
-  if (!path || path === '/') return '/'
-  if (path.endsWith('/')) return path
-  return `${path}/`
-}
-
-export function buildAbsoluteUrl(path = '/') {
-  return new URL(normalizeCanonicalPath(path), SITE_URL).toString()
 }
 
 export function applySeo({ title, description, path = '/', type = 'website', image, jsonLd }) {

@@ -16,7 +16,7 @@
       <tbody>
         <tr v-for="post in posts" :key="post.slug">
           <td class="list-title-cell">
-            <router-link :to="`/tech-blogs/${post.slug}`">{{ post.title }}</router-link>
+            <router-link :to="`/tech-blogs/${post.slug}/`">{{ post.title }}</router-link>
           </td>
           <td class="list-summary-cell">{{ post.summary }}</td>
           <td>

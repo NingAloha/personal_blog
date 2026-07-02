@@ -17,7 +17,7 @@
       <tbody>
         <tr v-for="p in projects" :key="p.slug">
           <td class="list-title-cell">
-            <router-link :to="`/projects/${p.slug}`">{{ p.title }}</router-link>
+            <router-link :to="`/projects/${p.slug}/`">{{ p.title }}</router-link>
           </td>
           <td class="list-summary-cell">{{ p.summary }}</td>
           <td>
