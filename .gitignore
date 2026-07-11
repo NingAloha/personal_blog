@@ -9,3 +9,4 @@ backend/data/stats.json
 
 # builds
 frontend/dist/
+frontend/public/content/
