@@ -3,7 +3,7 @@ title: 初次运行 KAIR：一次 DnCNN 图像去噪记录
 summary: 我在 Apple M4 上尝试配置并运行 KAIR，补齐 requirement.txt 中遗漏的 matplotlib，完成 DnCNN 在 Set12 数据集上的初步测试，并记录对去噪效果与细节变化的直观观察。
 tags: [KAIR, DnCNN, Image Restoration, PyTorch, Computer Vision]
 date: "2026-07-11"
-featured: false
+featured: true
 ---
 
 此前我接触过摄影和数字图像后期处理，对曝光、ISO、白平衡等数字图像相关概念有一些基础了解。这些经历让我对图像质量的变化有过比较直观的认识。为了进一步了解图像恢复方向，我近期尝试配置并运行了 [KAIR](https://github.com/cszn/KAIR) 这一图像恢复工具箱。

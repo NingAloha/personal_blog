@@ -10,3 +10,4 @@ backend/data/stats.json
 # builds
 frontend/dist/
 frontend/public/content/
+frontend/public/sitemap.xml
