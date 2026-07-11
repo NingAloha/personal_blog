@@ -95,6 +95,8 @@ a:hover { text-decoration: underline; }
   margin: 1em auto;
   border: 1px solid var(--border-soft);
 }
+.wiki-body p:has(> img) { text-align: center; }
+.wiki-body p > img { margin-left: auto; margin-right: auto; }
 .wiki-body ul, .wiki-body ol { padding-left: 1.6em; margin: 0.5em 0 1em; }
 .wiki-body li { margin-bottom: 0.3em; }
 .wiki-body code {
