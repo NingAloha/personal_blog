@@ -27,3 +27,9 @@ jobs:
             - name: Build frontend
               working-directory: frontend
               run: npm run build
+
+            - name: Upload frontend artifact
+              uses: actions/upload-artifact@v4
+              with:
+                name: frontend-dist
+                path: frontend/dist
